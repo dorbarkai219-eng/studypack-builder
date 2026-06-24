@@ -1,26 +1,146 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Design tokens (spec §5) ─────────────────────────────────────────────
+   Tailwind v4 reads --color-* from @theme and generates text-/bg-/border-
+   utilities (e.g. text-ink, bg-paper, border-lines).                       */
+@theme {
+  --color-paper: #ffffff;
+  --color-ink: #16202c;
+  --color-muted: #5b6b7b;
+  --color-lines: #d8dee6;
+
+  --color-navy: #1f3a5f; /* structure / headers */
+  --color-orange: #e07a2b; /* emphasis / active */
+
+  /* callout families */
+  --color-keyidea: #2563eb; /* blue */
+  --color-keyidea-bg: #eff4ff;
+  --color-tip: #15803d; /* green */
+  --color-tip-bg: #ecfaf0;
+  --color-mistake: #c0322b; /* red */
+  --color-mistake-bg: #fdecec;
+  --color-example: #b45309; /* amber */
+  --color-example-bg: #fdf4e3;
+
+  --color-formula-bg: #16202c;
+  --color-formula-ink: #f2f6fb;
+
+  --font-heb: var(--font-heb), "Heebo", "Assistant", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html,
+body {
+  height: 100%;
+}
+body {
+  background: #eef1f5;
+  color: var(--color-ink);
+  font-family: var(--font-heb);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── RTL / formula isolation (spec §6 — the #1 bug) ──────────────────────
+   Force LTR rendering for Latin/Greek/math even inside an RTL page.
+   Applied via the <Ltr> component (a <bdi>).                               */
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+}
+
+/* ── Cheat-sheet layout + density (spec §4.4) ────────────────────────────
+   CSS multi-column so columns survive printing. Density presets map to
+   column-count + font scale + spacing. break-inside:avoid keeps boxes whole. */
+.cheatsheet {
+  --cs-cols: 2;
+  --cs-font: 10px;
+  --cs-gap: 8px;
+  --cs-pad: 8px;
+  column-count: var(--cs-cols);
+  column-gap: var(--cs-gap);
+  column-fill: balance;
+  font-size: var(--cs-font);
+  line-height: 1.32;
+}
+.cheatsheet.density-1page {
+  --cs-cols: 3;
+  --cs-font: 8.4px;
+  --cs-gap: 6px;
+  --cs-pad: 6px;
+}
+.cheatsheet.density-2page {
+  --cs-cols: 2;
+  --cs-font: 10px;
+  --cs-gap: 8px;
+  --cs-pad: 8px;
+}
+.cheatsheet.density-detailed {
+  --cs-cols: 2;
+  --cs-font: 11.5px;
+  --cs-gap: 10px;
+  --cs-pad: 11px;
+}
+
+.cs-box {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: var(--cs-gap);
+  padding: var(--cs-pad);
+  border: 1px solid var(--color-lines);
+  border-radius: 6px;
+  background: var(--color-paper);
+}
+
+/* On-screen "paper" preview so what you see ≈ what prints. */
+.cs-page {
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 6mm;
+  background: var(--color-paper);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Print fidelity (spec §4.4, §11 #4) ──────────────────────────────────
+   Force columns + A4 page so print never collapses to a single column.   */
+@media print {
+  @page {
+    size: A4;
+    margin: 6mm;
+  }
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .cs-page {
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .cheatsheet {
+    column-count: var(--cs-cols); /* re-assert: some engines drop screen columns */
+  }
+  .cs-box {
+    border-color: #c3ccd6;
+  }
+  /* keep formula boxes legible in print engines that strip dark backgrounds */
+  .formula-box {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
