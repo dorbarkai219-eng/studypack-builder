@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { CoursePack } from "@/lib/coursepack/schema";
 import { makeLabels, type LabelKey } from "@/lib/i18n/labels";
 import { TopicBox } from "./TopicBox";
@@ -68,6 +69,13 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
             ))}
           </div>
         </div>
+
+        <Link
+          href={`/deck/${course.id}`}
+          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+        >
+          {dir === "rtl" ? "מצגת" : "Deck"}
+        </Link>
 
         <button
           type="button"
