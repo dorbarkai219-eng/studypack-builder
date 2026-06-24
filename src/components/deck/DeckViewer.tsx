@@ -91,6 +91,12 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
         >
           {t("cheatSheet")}
         </Link>
+        <Link
+          href={`/plan/${pack.course.id}`}
+          className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+        >
+          {isHe ? "תכנית" : "Plan"}
+        </Link>
         <a
           href={`/deck/${pack.course.id}/export`}
           download={`${pack.course.id}-deck.html`}

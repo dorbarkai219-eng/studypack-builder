@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { CoursePack } from "@/lib/coursepack/schema";
 import { makeLabels, type LabelKey } from "@/lib/i18n/labels";
+import { daysUntil } from "@/lib/date";
 import { TopicBox } from "./TopicBox";
 import {
   ComparisonSection,
@@ -13,14 +14,6 @@ import {
 } from "./Summaries";
 
 type Density = "1page" | "2page" | "detailed";
-
-function daysUntil(examDate: string): number {
-  const [y, m, d] = examDate.split("-").map(Number);
-  const exam = Date.UTC(y, m - 1, d);
-  const now = new Date();
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  return Math.round((exam - today) / 86_400_000);
-}
 
 export function CheatSheetView({ pack }: { pack: CoursePack }) {
   const [density, setDensity] = useState<Density>("2page");
@@ -75,6 +68,13 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
         >
           {dir === "rtl" ? "מצגת" : "Deck"}
+        </Link>
+
+        <Link
+          href={`/plan/${course.id}`}
+          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+        >
+          {dir === "rtl" ? "תכנית" : "Plan"}
         </Link>
 
         <button

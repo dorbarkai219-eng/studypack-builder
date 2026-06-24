@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { listPacks } from "@/lib/coursepack/registry";
-
-function daysUntil(examDate: string): number {
-  const [y, m, d] = examDate.split("-").map(Number);
-  const exam = Date.UTC(y, m - 1, d);
-  const now = new Date();
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  return Math.round((exam - today) / 86_400_000);
-}
+import { daysUntil } from "@/lib/date";
 
 export default function Home() {
   const packs = listPacks();
@@ -50,9 +43,15 @@ export default function Home() {
                 </Link>
                 <Link
                   href={`/deck/${p.course.id}`}
-                  className="rounded-md bg-navy px-3 py-1 text-sm font-semibold text-paper hover:brightness-110"
+                  className="rounded-md border border-lines px-3 py-1 text-sm text-ink hover:bg-lines/40"
                 >
                   Deck
+                </Link>
+                <Link
+                  href={`/plan/${p.course.id}`}
+                  className="rounded-md bg-navy px-3 py-1 text-sm font-semibold text-paper hover:brightness-110"
+                >
+                  Study plan
                 </Link>
               </div>
             </li>
