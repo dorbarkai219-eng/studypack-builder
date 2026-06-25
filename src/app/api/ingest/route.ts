@@ -18,6 +18,10 @@ export const maxDuration = 360;
 
 const ID_RE = /^[a-z0-9][a-z0-9-]{1,40}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+/** Total upload size cap. PDF base64 ~33% larger; Anthropic message size + cost both grow fast. */
+const MAX_BYTES_PER_REQUEST = 25 * 1024 * 1024;
+const MAX_BYTES_PER_FILE = 15 * 1024 * 1024;
+const MAX_FILES = 8;
 
 export async function POST(req: Request) {
   let form: FormData;
@@ -56,8 +60,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "examDate must be YYYY-MM-DD" }, { status: 400 });
 
   const files: IngestFile[] = [];
+  let totalBytes = 0;
   for (const entry of form.getAll("files")) {
     if (!(entry instanceof File)) continue;
+    if (files.length >= MAX_FILES)
+      return NextResponse.json(
+        { error: `Too many files (max ${MAX_FILES} per ingest)` },
+        { status: 413 },
+      );
+    if (entry.size > MAX_BYTES_PER_FILE)
+      return NextResponse.json(
+        {
+          error: `File "${entry.name}" is ${(entry.size / 1024 / 1024).toFixed(1)} MB — max ${MAX_BYTES_PER_FILE / 1024 / 1024} MB per file`,
+        },
+        { status: 413 },
+      );
+    totalBytes += entry.size;
+    if (totalBytes > MAX_BYTES_PER_REQUEST)
+      return NextResponse.json(
+        {
+          error: `Combined upload is ${(totalBytes / 1024 / 1024).toFixed(1)} MB — max ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB per ingest`,
+        },
+        { status: 413 },
+      );
     const buf = Buffer.from(await entry.arrayBuffer());
     const kind = detectKind(entry.name, entry.type);
     if (kind === "pdf") {

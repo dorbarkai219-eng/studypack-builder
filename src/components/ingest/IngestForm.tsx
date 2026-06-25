@@ -1,19 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type State =
   | { kind: "idle" }
-  | { kind: "uploading" }
+  | { kind: "uploading"; startedAt: number }
   | { kind: "ok"; id: string }
   | { kind: "error"; message: string };
 
+const MAX_BYTES_PER_FILE = 15 * 1024 * 1024;
+const MAX_BYTES_PER_REQUEST = 25 * 1024 * 1024;
+const MAX_FILES = 8;
+
+function fmtBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
 export function IngestForm() {
   const [state, setState] = useState<State>({ kind: "idle" });
+  const [selected, setSelected] = useState<File[]>([]);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  // Live elapsed-seconds counter while the request is in flight.
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (state.kind !== "uploading") return;
+    const id = setInterval(
+      () => setElapsed(Math.floor((Date.now() - state.startedAt) / 1000)),
+      1000,
+    );
+    return () => clearInterval(id);
+  }, [state]);
+
+  const totalBytes = selected.reduce((n, f) => n + f.size, 0);
+  const over =
+    selected.length > MAX_FILES ||
+    selected.some((f) => f.size > MAX_BYTES_PER_FILE) ||
+    totalBytes > MAX_BYTES_PER_REQUEST;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setState({ kind: "uploading" });
+    setState({ kind: "uploading", startedAt: Date.now() });
+    setElapsed(0);
     const data = new FormData(e.currentTarget);
     try {
       const res = await fetch("/api/ingest", { method: "POST", body: data });
@@ -114,14 +144,41 @@ export function IngestForm() {
         </Field>
       </div>
 
-      <Field label="Upload files (PDF / PPTX / DOCX / .txt — multiple allowed)">
+      <Field
+        label={`Upload files (PDF / PPTX / DOCX / .txt — up to ${MAX_FILES} files, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB total)`}
+      >
         <input
+          ref={fileRef}
           type="file"
           name="files"
           multiple
           accept=".pdf,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,.txt,.md"
           className="text-sm"
+          onChange={(e) => setSelected(Array.from(e.target.files ?? []))}
         />
+        {selected.length > 0 && (
+          <ul className="m-0 mt-2 grid list-none gap-1 rounded-md border border-lines bg-[#f7f9fc] p-2 text-xs">
+            {selected.map((f) => (
+              <li
+                key={`${f.name}-${f.size}`}
+                className={`flex items-baseline justify-between gap-2 ${
+                  f.size > MAX_BYTES_PER_FILE ? "text-[#c0322b]" : "text-ink"
+                }`}
+              >
+                <span className="font-mono">{f.name}</span>
+                <span className="text-muted">{fmtBytes(f.size)}</span>
+              </li>
+            ))}
+            <li className="mt-1 flex items-baseline justify-between gap-2 border-t border-lines pt-1 text-[10px] uppercase tracking-wide text-muted">
+              <span>
+                {selected.length}/{MAX_FILES} files
+              </span>
+              <span className={over ? "font-bold text-[#c0322b]" : ""}>
+                {fmtBytes(totalBytes)} / {MAX_BYTES_PER_REQUEST / 1024 / 1024} MB
+              </span>
+            </li>
+          </ul>
+        )}
       </Field>
 
       <Field label="Or paste raw text">
@@ -136,11 +193,18 @@ export function IngestForm() {
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          disabled={state.kind === "uploading"}
+          disabled={state.kind === "uploading" || over}
           className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
         >
-          {state.kind === "uploading" ? "Structuring…" : "Ingest"}
+          {state.kind === "uploading" ? `Structuring… ${elapsed}s` : "Ingest"}
         </button>
+        {state.kind === "uploading" && (
+          <span className="text-xs text-muted">
+            Claude is reading {selected.length || "your"} source
+            {selected.length === 1 ? "" : "s"} and structuring the CoursePack —
+            can take ~30s on a multi-PDF upload.
+          </span>
+        )}
         {state.kind === "error" && (
           <span className="text-sm text-[#c0322b]">{state.message}</span>
         )}
@@ -162,6 +226,11 @@ export function IngestForm() {
             <a className="underline" href={`/verify/${state.id}`}>
               verify
             </a>
+          </span>
+        )}
+        {over && state.kind === "idle" && (
+          <span className="text-xs text-[#c0322b]">
+            Over the limit — remove a file or pick a smaller one
           </span>
         )}
       </div>
