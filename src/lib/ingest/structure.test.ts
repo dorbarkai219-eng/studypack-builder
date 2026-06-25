@@ -86,6 +86,30 @@ describe("structureCoursePack", () => {
     );
   });
 
+  it("retries once on malformed JSON and succeeds on the second attempt", async () => {
+    const good = JSON.stringify({
+      course: { id: "x", title: "x", subject: "x", language: "x", direction: "ltr", examDate: "2000-01-01", weakTopics: [], outputLanguage: "x" },
+      sources: [],
+      blocks: englishBiologyPack.blocks,
+      summaries: englishBiologyPack.summaries,
+    });
+    const create = vi
+      .fn()
+      .mockResolvedValueOnce({ content: [{ type: "text", text: "absolute nonsense" }] })
+      .mockResolvedValueOnce({ content: [{ type: "text", text: good }] });
+    const client = { messages: { create } } as unknown as ConstructorParameters<typeof structureCoursePack>[2] extends { client?: infer C } ? C : never;
+    const pack = await structureCoursePack(
+      [{ filename: "n.txt", type: "text", data: Buffer.from("y") }],
+      META,
+      { client },
+    );
+    expect(pack.course.id).toBe("test-pack");
+    expect(create).toHaveBeenCalledTimes(2);
+    // Second call carried the corrective hint.
+    const secondMessages = create.mock.calls[1][0].messages;
+    expect(secondMessages.at(-1).content).toMatch(/could not be parsed/);
+  });
+
   it("rejects model output that fails Zod validation", async () => {
     const reply = JSON.stringify({
       // missing blocks/summaries → Zod fails

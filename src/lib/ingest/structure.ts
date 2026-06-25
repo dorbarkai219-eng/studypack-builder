@@ -188,36 +188,58 @@ export async function structureCoursePack(
   }
   content.push({ type: "text", text: userInstructions(meta) });
 
-  const resp = await client.messages.create({
-    model,
-    max_tokens: opts.maxTokens ?? 16_000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content }],
-  });
+  // Conversation state — one initial turn, then up to one retry that
+  // includes the model's previous (malformed) reply + a corrective hint.
+  const messages: Anthropic.MessageParam[] = [{ role: "user", content }];
+  const maxAttempts = 2;
+  let lastError: Error | null = null;
 
-  const text = resp.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("\n");
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const resp = await client.messages.create({
+      model,
+      max_tokens: opts.maxTokens ?? 16_000,
+      system: SYSTEM_PROMPT,
+      messages,
+    });
+    const text = resp.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n");
+    try {
+      const raw = extractJson(text) as Record<string, unknown>;
+      // Overwrite course + sources with host-controlled values so Claude
+      // can't accidentally rename the pack or invent provenance ids.
+      const candidate = {
+        ...raw,
+        course: {
+          id: meta.id,
+          title: meta.title,
+          subject: meta.subject,
+          language: meta.language,
+          direction: meta.direction,
+          examDate: meta.examDate,
+          weakTopics: meta.weakTopics ?? [],
+          outputLanguage: meta.outputLanguage,
+        },
+        sources: filesToSources(files),
+      };
+      return parseCoursePack(candidate);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt === maxAttempts) break;
+      // Hand the model its bad reply + a corrective instruction.
+      messages.push(
+        { role: "assistant", content: text },
+        {
+          role: "user",
+          content: `Your previous response could not be parsed: ${lastError.message.slice(0, 240)}.
 
-  const raw = extractJson(text) as Record<string, unknown>;
-
-  // Overwrite course + sources with host-controlled values so Claude can't
-  // accidentally rename the pack or invent provenance ids.
-  const candidate = {
-    ...raw,
-    course: {
-      id: meta.id,
-      title: meta.title,
-      subject: meta.subject,
-      language: meta.language,
-      direction: meta.direction,
-      examDate: meta.examDate,
-      weakTopics: meta.weakTopics ?? [],
-      outputLanguage: meta.outputLanguage,
-    },
-    sources: filesToSources(files),
-  };
-
-  return parseCoursePack(candidate);
+Return ONLY the CoursePack JSON object as specified — no prose, no markdown fences, no commentary. All required fields must be present and types must match the Zod schema exactly.`,
+        },
+      );
+    }
+  }
+  throw new Error(
+    `Structuring failed after ${maxAttempts} attempt(s): ${lastError?.message ?? "unknown"}`,
+  );
 }
