@@ -44,6 +44,31 @@ browsable at all the artifact routes.
 Requires `ANTHROPIC_API_KEY` in the server env. Optional
 `ANTHROPIC_MODEL` overrides the default (`claude-sonnet-4-5`).
 
+The structurer retries once on malformed model output, with the assistant's
+bad reply + a corrective hint folded back into the conversation, so a
+single garbled response doesn't sink a multi-PDF upload.
+
+### Limits
+
+`/api/ingest` enforces:
+
+- **15 MB per file**
+- **25 MB per request**
+- **8 files per request**
+
+Tuned for Anthropic's per-message size + cost ceilings; over-limit returns
+413 with a human message before any model call happens.
+
+### Persistence in production
+
+The dev store writes ingested packs to `data/packs/{id}.json` on the local
+filesystem. **This will not survive on a serverless deploy** (Vercel,
+Netlify, Cloud Run) — the disk is ephemeral and read-only at request time.
+For production, swap `src/lib/coursepack/store.ts` for a real backend
+(Postgres / Vercel KV / Upstash / R2 / S3). The interface is small:
+`savePack(pack)`, `loadStoredPacks()`, `getStoredPack(id)` — three async
+functions.
+
 ## Architecture
 
 ```
