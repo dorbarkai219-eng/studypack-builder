@@ -104,6 +104,13 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
         >
           {isHe ? "הורד HTML" : "Download HTML"}
         </a>
+        <a
+          href={`/deck/${pack.course.id}/export-pptx`}
+          download={`${pack.course.id}-deck.pptx`}
+          className="rounded-md border border-navy px-2.5 py-1 text-xs font-semibold text-navy hover:bg-navy/10"
+        >
+          {isHe ? "הורד PPTX" : "Download PPTX"}
+        </a>
       </div>
 
       {/* Stage */}
