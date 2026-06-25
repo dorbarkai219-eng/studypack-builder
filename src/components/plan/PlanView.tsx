@@ -6,6 +6,7 @@ import type { CoursePack } from "@/lib/coursepack/schema";
 import { buildPlan } from "@/lib/plan/buildPlan";
 import { daysUntil } from "@/lib/date";
 import { Ltr } from "@/components/cheatsheet/Ltr";
+import { makeLabels } from "@/lib/i18n/labels";
 
 type Checked = Record<string, boolean>;
 
@@ -16,7 +17,7 @@ function taskId(day: number, kind: "learn" | "practice", i: number) {
 }
 
 export function PlanView({ pack }: { pack: CoursePack }) {
-  const isHe = pack.course.outputLanguage === "he";
+  const t = makeLabels(pack.course.outputLanguage);
   const dir = pack.course.direction;
   const days = Math.max(1, daysUntil(pack.course.examDate));
   const plan = useMemo(() => buildPlan(pack, days), [pack, days]);
@@ -73,37 +74,36 @@ export function PlanView({ pack }: { pack: CoursePack }) {
           </Link>
           <div className="me-auto">
             <h1 className="m-0 text-base font-bold text-navy">
-              {pack.course.title} · {isHe ? "תכנית למידה" : "Study plan"}
+              {pack.course.title} · {t("studyPlan")}
             </h1>
             <p className="m-0 text-xs text-muted">
-              {isHe ? "מבחן בעוד" : "Exam in"} {days} {isHe ? "ימים" : "days"} ·{" "}
-              {plan.length} {isHe ? "ימי לימוד" : "study days"}
+              {t("examIn")} {days} {t("examInDays")} · {plan.length} {t("studyDays")}
             </p>
           </div>
           <Link
             href={`/deck/${pack.course.id}`}
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
           >
-            {isHe ? "מצגת" : "Deck"}
+            {t("deck")}
           </Link>
           <Link
             href={`/cheatsheet/${pack.course.id}`}
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
           >
-            {isHe ? "דף נוסחאות" : "Cheat sheet"}
+            {t("cheatSheet")}
           </Link>
           <Link
             href={`/verify/${pack.course.id}`}
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
           >
-            {isHe ? "אימות" : "Verify"}
+            {t("verify")}
           </Link>
           <button
             type="button"
             onClick={reset}
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
           >
-            {isHe ? "איפוס" : "Reset"}
+            {t("reset")}
           </button>
         </div>
         {/* Global progress */}
@@ -141,7 +141,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
             >
               <header className="mb-2 flex flex-wrap items-baseline gap-2 border-b border-lines pb-2">
                 <span className="rounded-md bg-navy px-2 py-0.5 text-sm font-bold text-paper">
-                  {isHe ? "יום" : "Day"} {d.day}
+                  {t("day")} {d.day}
                 </span>
                 {d.star && <span className="text-orange">★</span>}
                 <span className="rounded bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">
@@ -155,7 +155,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
               {d.slideRefs.length > 0 && (
                 <div className="mb-3 rounded-lg bg-keyidea-bg/50 px-3 py-2">
                   <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-wide text-keyidea">
-                    {isHe ? "שקופיות במצגת" : "Slides in the deck"}
+                    {t("slidesInDeck")}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {d.slideRefs.map((title, i) => (
@@ -172,7 +172,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <TaskColumn
-                  title={isHe ? "ללמוד" : "Learn"}
+                  title={t("learn")}
                   accent="text-keyidea"
                   tasks={d.learn}
                   idFor={(i) => taskId(d.day, "learn", i)}
@@ -180,7 +180,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
                   onToggle={toggle}
                 />
                 <TaskColumn
-                  title={isHe ? "לתרגל" : "Practice"}
+                  title={t("practice")}
                   accent="text-example"
                   tasks={d.practice}
                   idFor={(i) => taskId(d.day, "practice", i)}
@@ -191,7 +191,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
 
               {d.materials && (
                 <p className="m-0 mt-3 border-t border-lines pt-2 text-xs text-muted">
-                  {isHe ? "חומרים" : "Materials"}:{" "}
+                  {t("materials")}:{" "}
                   <Ltr as="span">{d.materials}</Ltr>
                 </p>
               )}

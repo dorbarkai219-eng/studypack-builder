@@ -25,7 +25,27 @@ export type LabelKey =
   | "d1"
   | "d2"
   | "dDetailed"
-  | "mappedTo";
+  | "mappedTo"
+  | "home"
+  | "deck"
+  | "plan"
+  | "verify"
+  | "studyPlan"
+  | "downloadHtml"
+  | "downloadPptx"
+  | "examInDays"
+  | "studyDays"
+  | "reset"
+  | "slidesInDeck"
+  | "learn"
+  | "practice"
+  | "next"
+  | "previous"
+  | "back"
+  | "subject"
+  | "topics"
+  | "day"
+  | "materials";
 
 const EN: Record<LabelKey, string> = {
   example: "Example",
@@ -51,6 +71,26 @@ const EN: Record<LabelKey, string> = {
   d2: "2 pages",
   dDetailed: "Detailed",
   mappedTo: "→",
+  home: "Home",
+  deck: "Deck",
+  plan: "Plan",
+  verify: "Verify",
+  studyPlan: "Study plan",
+  downloadHtml: "Download HTML",
+  downloadPptx: "Download PPTX",
+  examInDays: "days",
+  studyDays: "study days",
+  reset: "Reset",
+  slidesInDeck: "Slides in the deck",
+  learn: "Learn",
+  practice: "Practice",
+  next: "Next",
+  previous: "Previous",
+  back: "Back",
+  subject: "Subject",
+  topics: "topics",
+  day: "Day",
+  materials: "Materials",
 };
 
 const HE: Record<LabelKey, string> = {
@@ -77,6 +117,26 @@ const HE: Record<LabelKey, string> = {
   d2: "2 עמודים",
   dDetailed: "מפורט",
   mappedTo: "→",
+  home: "בית",
+  deck: "מצגת",
+  plan: "תכנית",
+  verify: "אימות",
+  studyPlan: "תכנית לימוד",
+  downloadHtml: "הורד HTML",
+  downloadPptx: "הורד PPTX",
+  examInDays: "ימים",
+  studyDays: "ימי לימוד",
+  reset: "איפוס",
+  slidesInDeck: "שקופיות במצגת",
+  learn: "ללמוד",
+  practice: "תרגול",
+  next: "הבא",
+  previous: "הקודם",
+  back: "חזרה",
+  subject: "נושא",
+  topics: "נושאים",
+  day: "יום",
+  materials: "חומרים",
 };
 
 const TABLES: Record<string, Record<LabelKey, string>> = { en: EN, he: HE };

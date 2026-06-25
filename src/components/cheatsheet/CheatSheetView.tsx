@@ -37,7 +37,7 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
             {course.title} · {t("cheatSheet")}
           </h1>
           <p className="m-0 text-xs text-muted">
-            {t("examIn")} {days >= 0 ? days : 0} {dir === "rtl" ? "ימים" : "days"} ·{" "}
+            {t("examIn")} {days >= 0 ? days : 0} {t("examInDays")} ·{" "}
             {course.subject}
           </p>
         </div>
@@ -67,21 +67,21 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
           href={`/deck/${course.id}`}
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
         >
-          {dir === "rtl" ? "מצגת" : "Deck"}
+          {t("deck")}
         </Link>
 
         <Link
           href={`/plan/${course.id}`}
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
         >
-          {dir === "rtl" ? "תכנית" : "Plan"}
+          {t("plan")}
         </Link>
 
         <Link
           href={`/verify/${course.id}`}
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-muted hover:bg-lines/40"
         >
-          {dir === "rtl" ? "אימות" : "Verify"}
+          {t("verify")}
         </Link>
 
         <button

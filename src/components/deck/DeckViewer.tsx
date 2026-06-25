@@ -11,7 +11,6 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
   const slides = useMemo(() => buildDeck(pack), [pack]);
   const t = makeLabels(pack.course.outputLanguage);
   const dir = pack.course.direction;
-  const isHe = pack.course.outputLanguage === "he";
 
   const [current, setCurrent] = useState(0);
   const total = slides.length;
@@ -80,7 +79,7 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
         <Link
           href="/"
           className="text-sm text-muted hover:text-ink"
-          aria-label={isHe ? "חזרה" : "Home"}
+          aria-label={t("back")}
         >
           ←
         </Link>
@@ -95,27 +94,27 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
           href={`/plan/${pack.course.id}`}
           className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
         >
-          {isHe ? "תכנית" : "Plan"}
+          {t("plan")}
         </Link>
         <Link
           href={`/verify/${pack.course.id}`}
           className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
         >
-          {isHe ? "אימות" : "Verify"}
+          {t("verify")}
         </Link>
         <a
           href={`/deck/${pack.course.id}/export`}
           download={`${pack.course.id}-deck.html`}
           className="rounded-md bg-navy px-2.5 py-1 text-xs font-semibold text-paper hover:brightness-110"
         >
-          {isHe ? "הורד HTML" : "Download HTML"}
+          {t("downloadHtml")}
         </a>
         <a
           href={`/deck/${pack.course.id}/export-pptx`}
           download={`${pack.course.id}-deck.pptx`}
           className="rounded-md border border-navy px-2.5 py-1 text-xs font-semibold text-navy hover:bg-navy/10"
         >
-          {isHe ? "הורד PPTX" : "Download PPTX"}
+          {t("downloadPptx")}
         </a>
       </div>
 
