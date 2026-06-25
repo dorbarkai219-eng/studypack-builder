@@ -53,6 +53,12 @@ export default function Home() {
                 >
                   Study plan
                 </Link>
+                <Link
+                  href={`/verify/${p.course.id}`}
+                  className="rounded-md border border-lines px-3 py-1 text-sm text-muted hover:bg-lines/40"
+                >
+                  Verify
+                </Link>
               </div>
             </li>
           );

@@ -92,6 +92,12 @@ export function PlanView({ pack }: { pack: CoursePack }) {
           >
             {isHe ? "דף נוסחאות" : "Cheat sheet"}
           </Link>
+          <Link
+            href={`/verify/${pack.course.id}`}
+            className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
+          >
+            {isHe ? "אימות" : "Verify"}
+          </Link>
           <button
             type="button"
             onClick={reset}

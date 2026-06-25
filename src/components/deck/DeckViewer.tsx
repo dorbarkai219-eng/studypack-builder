@@ -97,6 +97,12 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
         >
           {isHe ? "תכנית" : "Plan"}
         </Link>
+        <Link
+          href={`/verify/${pack.course.id}`}
+          className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
+        >
+          {isHe ? "אימות" : "Verify"}
+        </Link>
         <a
           href={`/deck/${pack.course.id}/export`}
           download={`${pack.course.id}-deck.html`}

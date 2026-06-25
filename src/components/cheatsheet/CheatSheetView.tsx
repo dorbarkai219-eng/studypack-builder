@@ -77,6 +77,13 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
           {dir === "rtl" ? "תכנית" : "Plan"}
         </Link>
 
+        <Link
+          href={`/verify/${course.id}`}
+          className="rounded-md border border-lines px-3 py-1.5 text-sm text-muted hover:bg-lines/40"
+        >
+          {dir === "rtl" ? "אימות" : "Verify"}
+        </Link>
+
         <button
           type="button"
           onClick={() => window.print()}
