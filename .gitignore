@@ -43,3 +43,5 @@ next-env.d.ts
 # studypack
 /.npm-cache-studypack
 .DS_Store
+# ingested coursepacks (per-dev, persisted to disk by /api/ingest)
+/data/packs/

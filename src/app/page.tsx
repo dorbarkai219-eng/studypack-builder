@@ -2,14 +2,23 @@ import Link from "next/link";
 import { listPacks } from "@/lib/coursepack/registry";
 import { daysUntil } from "@/lib/date";
 
-export default function Home() {
-  const packs = listPacks();
+export default async function Home() {
+  const packs = await listPacks();
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-2xl font-bold text-navy">StudyPack Builder</h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="m-0 text-2xl font-bold text-navy">StudyPack Builder</h1>
+        <Link
+          href="/ingest"
+          className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95"
+        >
+          + Ingest course materials
+        </Link>
+      </div>
       <p className="mt-1 text-muted">
-        Coordinated, exam-ready study packs from your course materials. Milestone 1:
-        the print-perfect, RTL-correct cheat-sheet renderer.
+        Coordinated, exam-ready study packs from your course materials —
+        cheat sheet, deck, study plan and verification report from one
+        CoursePack model.
       </p>
 
       <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-muted">

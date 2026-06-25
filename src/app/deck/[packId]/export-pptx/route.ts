@@ -4,8 +4,8 @@ import { exportDeckPptx } from "@/lib/deck/exportPptx";
 // pptxgenjs is Node-only (uses jszip + fs-style APIs) — force the Node runtime.
 export const runtime = "nodejs";
 
-export function generateStaticParams() {
-  return listPacks().map((p) => ({ packId: p.course.id }));
+export async function generateStaticParams() {
+  return (await listPacks()).map((p) => ({ packId: p.course.id }));
 }
 
 export async function GET(
@@ -13,7 +13,7 @@ export async function GET(
   { params }: { params: Promise<{ packId: string }> },
 ) {
   const { packId } = await params;
-  const pack = getPack(packId);
+  const pack = await getPack(packId);
   if (!pack) return new Response("Not found", { status: 404 });
 
   const buf = await exportDeckPptx(pack);

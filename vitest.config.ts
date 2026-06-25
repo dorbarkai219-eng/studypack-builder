@@ -13,6 +13,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // Next.js's `server-only` package can't load in vitest — stub it.
+      "server-only": fileURLToPath(new URL("./vitest.stubs/server-only.ts", import.meta.url)),
     },
   },
 });
