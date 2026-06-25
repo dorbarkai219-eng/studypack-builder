@@ -19,6 +19,8 @@ export interface PackStore {
   savePack(pack: CoursePack): Promise<void>;
   loadStoredPacks(): Promise<CoursePack[]>;
   getStoredPack(id: string): Promise<CoursePack | undefined>;
+  /** Return true if a pack with that id was found and removed. */
+  deletePack(id: string): Promise<boolean>;
 }
 
 // ── Filesystem adapter (dev default) ────────────────────────────────────────
@@ -59,6 +61,14 @@ const fsStore: PackStore = {
       return undefined;
     }
   },
+  async deletePack(id) {
+    try {
+      await fs.unlink(path.join(FS_DIR, `${id}.json`));
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
 
 // ── In-memory adapter (serverless-friendly within a single instance) ───────
@@ -74,6 +84,9 @@ const memoryStore: PackStore = {
   },
   async getStoredPack(id) {
     return memoryPacks.get(id);
+  },
+  async deletePack(id) {
+    return memoryPacks.delete(id);
   },
 };
 
@@ -91,6 +104,7 @@ export const loadStoredPacks: PackStore["loadStoredPacks"] = () =>
   adapter.loadStoredPacks();
 export const getStoredPack: PackStore["getStoredPack"] = (id) =>
   adapter.getStoredPack(id);
+export const deletePack: PackStore["deletePack"] = (id) => adapter.deletePack(id);
 
 /** Exposed for direct adapter access if a caller really wants a specific impl. */
 export const adapters = { fs: fsStore, memory: memoryStore } as const;
