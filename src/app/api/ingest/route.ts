@@ -4,6 +4,11 @@ import {
   type IngestFile,
   type IngestMeta,
 } from "@/lib/ingest/structure";
+import {
+  detectKind,
+  extractDocxText,
+  extractPptxText,
+} from "@/lib/ingest/extract";
 import { savePack } from "@/lib/coursepack/store";
 
 // Anthropic SDK + filesystem persistence require Node.
@@ -54,14 +59,31 @@ export async function POST(req: Request) {
   for (const entry of form.getAll("files")) {
     if (!(entry instanceof File)) continue;
     const buf = Buffer.from(await entry.arrayBuffer());
-    const isPdf =
-      entry.type === "application/pdf" ||
-      entry.name.toLowerCase().endsWith(".pdf");
-    files.push({
-      filename: entry.name,
-      type: isPdf ? "pdf" : "text",
-      data: buf,
-    });
+    const kind = detectKind(entry.name, entry.type);
+    if (kind === "pdf") {
+      files.push({ filename: entry.name, type: "pdf", data: buf });
+    } else if (kind === "pptx" || kind === "docx") {
+      try {
+        const text =
+          kind === "pptx" ? await extractPptxText(buf) : await extractDocxText(buf);
+        files.push({
+          filename: entry.name,
+          type: "text",
+          data: Buffer.from(text, "utf8"),
+        });
+      } catch (err) {
+        return NextResponse.json(
+          {
+            error: `Failed to extract ${kind.toUpperCase()} "${entry.name}": ${
+              err instanceof Error ? err.message : String(err)
+            }`,
+          },
+          { status: 400 },
+        );
+      }
+    } else {
+      files.push({ filename: entry.name, type: "text", data: buf });
+    }
   }
   // Allow a "text" textarea fallback when no file upload is convenient (demo / no API key needed-flow).
   const rawText = String(form.get("text") ?? "").trim();

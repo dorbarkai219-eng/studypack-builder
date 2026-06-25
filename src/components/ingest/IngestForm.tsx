@@ -114,12 +114,12 @@ export function IngestForm() {
         </Field>
       </div>
 
-      <Field label="Upload files (PDFs, .txt — multiple allowed)">
+      <Field label="Upload files (PDF / PPTX / DOCX / .txt — multiple allowed)">
         <input
           type="file"
           name="files"
           multiple
-          accept=".pdf,application/pdf,text/plain,.txt,.md"
+          accept=".pdf,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,.txt,.md"
           className="text-sm"
         />
       </Field>

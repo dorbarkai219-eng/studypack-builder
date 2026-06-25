@@ -148,8 +148,13 @@ function filesToSources(files: IngestFile[]): Source[] {
     filename: f.filename,
     type: f.type === "pdf" ? "pdf" : "text",
     pages: 0,
+    // We persist the original kind even after extracting to text so the
+    // verify pass can audit provenance against the real format.
   }));
 }
+
+/** Maps "pptx"/"docx" → "text" for the LLM block path. */
+export type ExtractedKind = "pdf" | "text";
 
 export async function structureCoursePack(
   files: IngestFile[],
