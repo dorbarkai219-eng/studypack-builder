@@ -56,7 +56,7 @@ Spec rules you MUST follow (anti-hallucination, spec §3/§7):
 - Blocks are coherent topic groups (spec §3.2). Order them in the natural learning order. Each block has a one-line "framing" — why it matters.
 - "explanation" fields are plain language, not bullet symbols (spec §3.3).
 - Every formula has a "termKey" — symbol → meaning entries — so the reader never has to leave the box (spec §3.4).
-- Examples carry a "sourceRef" pointing to the source id (e.g. "src1 p. 12") when supported. If no source can be cited, omit the field.
+- Every concept, formula AND example carries a "sourceRef" pointing to the source id (e.g. "src1 p. 12") wherever it can be cited. If a claim genuinely has no traceable source in the materials, omit the field — but never invent.
 - Mark high-frequency / heavy exam topics with starLevel 1 or 2.
 - Summaries (confusingPairs, criticalConcepts, traps, typicalValues, checklist) span all blocks; populate from material when possible.
 
@@ -72,8 +72,8 @@ Schema (Zod-checked; missing required fields → REJECTED):
     "starLevel": 0|1|2,
     "examMapping": "string (optional)",
     "framing": "one-line why-it-matters in outputLanguage",
-    "concepts": [{ "term":"...", "enTerm":"...", "explanation":"plain-language explanation" }],
-    "formulas": [{ "latexOrText":"LTR-safe formula string", "intuition":"...", "termKey":[{"symbol":"x","meaning":"..."}] }],
+    "concepts": [{ "term":"...", "enTerm":"...", "explanation":"plain-language explanation", "sourceRef":"src1 p. 7" }],
+    "formulas": [{ "latexOrText":"LTR-safe formula string", "intuition":"...", "termKey":[{"symbol":"x","meaning":"..."}], "sourceRef":"src1 p. 11" }],
     "examples": [{ "text":"...", "sourceRef":"src1 p. 12" }],
     "mistakes": ["common error 1", "..."],
     "tips": ["exam tip 1", "..."]

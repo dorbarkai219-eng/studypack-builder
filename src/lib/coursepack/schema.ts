@@ -40,6 +40,8 @@ export const ConceptSchema = z.object({
   enTerm: z.string().optional(),
   /** Plain-language: what it means, why, when to use (spec §3.3). */
   explanation: z.string(),
+  /** Provenance — which source/page this concept came from (spec §7). */
+  sourceRef: z.string().optional(),
 });
 export type Concept = z.infer<typeof ConceptSchema>;
 
@@ -56,6 +58,8 @@ export const FormulaSchema = z.object({
   intuition: z.string(),
   /** Per-box symbol key so the reader never leaves the box (spec §3.4). */
   termKey: z.array(TermKeyEntrySchema).default([]),
+  /** Provenance — which source/page this formula came from (spec §7). */
+  sourceRef: z.string().optional(),
 });
 export type Formula = z.infer<typeof FormulaSchema>;
 

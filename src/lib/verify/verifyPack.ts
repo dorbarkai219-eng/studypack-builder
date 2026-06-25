@@ -25,6 +25,10 @@ export interface Finding {
 export interface VerifyCoverage {
   /** Fraction (0..1) of examples that carry a sourceRef. */
   exampleSourceRef: number;
+  /** Fraction of concepts that carry a sourceRef. */
+  conceptSourceRef: number;
+  /** Fraction of formulas that carry a sourceRef. */
+  formulaSourceRef: number;
   /** Fraction of blocks that produce ≥1 deck slide. */
   blocksWithDeck: number;
   /** Fraction of blocks referenced (transitively) by ≥1 plan day. */
@@ -66,8 +70,29 @@ export function verifyPack(pack: CoursePack): VerifyReport {
   // ----- Per-block structural + provenance checks -----
   let totalExamples = 0;
   let examplesWithRef = 0;
+  let totalConcepts = 0;
+  let conceptsWithRef = 0;
+  let totalFormulas = 0;
+  let formulasWithRef = 0;
   const blockHasContent = new Map<string, boolean>();
   const blockHasExampleSource = new Map<string, boolean>();
+
+  const checkSourceTokens = (
+    ref: string,
+    code: string,
+    where: string,
+  ) => {
+    const tokens = ref.match(SOURCE_TOKEN_RE) ?? [];
+    for (const tok of tokens) {
+      if (!sourceIds.has(tok))
+        add(
+          "error",
+          "unknown_source_id",
+          `${code} sourceRef references "${tok}" but no such source declared`,
+          where,
+        );
+    }
+  };
 
   pack.blocks.forEach((b, bi) => {
     const where = `blocks[${bi}](${b.id})`;
@@ -79,6 +104,7 @@ export function verifyPack(pack: CoursePack): VerifyReport {
       add("warn", "block_no_framing", `Block "${b.title}" has no framing line (spec §3.2)`, where);
 
     b.concepts.forEach((c, ci) => {
+      totalConcepts++;
       if (!c.explanation.trim())
         add(
           "error",
@@ -86,9 +112,25 @@ export function verifyPack(pack: CoursePack): VerifyReport {
           `Concept "${c.term}" has empty explanation (spec §3.3 explain-don't-bullet)`,
           `${where}.concepts[${ci}]`,
         );
+      if (c.sourceRef && c.sourceRef.trim()) {
+        conceptsWithRef++;
+        checkSourceTokens(
+          c.sourceRef,
+          "Concept",
+          `${where}.concepts[${ci}].sourceRef`,
+        );
+      } else {
+        add(
+          "warn",
+          "concept_no_provenance",
+          `Concept "${c.term}" has no sourceRef — claim not traceable (spec §7)`,
+          `${where}.concepts[${ci}]`,
+        );
+      }
     });
 
     b.formulas.forEach((f, fi) => {
+      totalFormulas++;
       if (!f.intuition.trim())
         add(
           "warn",
@@ -113,6 +155,21 @@ export function verifyPack(pack: CoursePack): VerifyReport {
           `Formula "${f.latexOrText}" contains Hebrew on an RTL pack — risks LTR-isolation corruption (spec §6)`,
           `${where}.formulas[${fi}]`,
         );
+      if (f.sourceRef && f.sourceRef.trim()) {
+        formulasWithRef++;
+        checkSourceTokens(
+          f.sourceRef,
+          "Formula",
+          `${where}.formulas[${fi}].sourceRef`,
+        );
+      } else {
+        add(
+          "warn",
+          "formula_no_provenance",
+          `Formula "${f.latexOrText}" has no sourceRef — claim not traceable (spec §7)`,
+          `${where}.formulas[${fi}]`,
+        );
+      }
     });
 
     let blockHasSrc = false;
@@ -121,17 +178,11 @@ export function verifyPack(pack: CoursePack): VerifyReport {
       if (e.sourceRef && e.sourceRef.trim()) {
         examplesWithRef++;
         blockHasSrc = true;
-        // every src token in the ref should match a declared source id
-        const tokens = e.sourceRef.match(SOURCE_TOKEN_RE) ?? [];
-        for (const tok of tokens) {
-          if (!sourceIds.has(tok))
-            add(
-              "error",
-              "unknown_source_id",
-              `Example sourceRef references "${tok}" but no such source declared`,
-              `${where}.examples[${ei}].sourceRef`,
-            );
-        }
+        checkSourceTokens(
+          e.sourceRef,
+          "Example",
+          `${where}.examples[${ei}].sourceRef`,
+        );
       } else {
         add(
           "warn",
@@ -221,6 +272,8 @@ export function verifyPack(pack: CoursePack): VerifyReport {
   // ----- Coverage stats -----
   const coverage: VerifyCoverage = {
     exampleSourceRef: totalExamples ? examplesWithRef / totalExamples : 0,
+    conceptSourceRef: totalConcepts ? conceptsWithRef / totalConcepts : 0,
+    formulaSourceRef: totalFormulas ? formulasWithRef / totalFormulas : 0,
     blocksWithDeck: pack.blocks.length ? blocksWithDeck / pack.blocks.length : 0,
     blocksInPlan: pack.blocks.length ? blocksInPlan / pack.blocks.length : 0,
   };

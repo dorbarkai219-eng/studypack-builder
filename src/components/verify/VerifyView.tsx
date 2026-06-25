@@ -117,8 +117,16 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
         </h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <CoverageBar
-            label={isHe ? "מקורות לדוגמאות" : "Example provenance"}
+            label={isHe ? "מקור · דוגמאות" : "Example provenance"}
             value={report.coverage.exampleSourceRef}
+          />
+          <CoverageBar
+            label={isHe ? "מקור · מושגים" : "Concept provenance"}
+            value={report.coverage.conceptSourceRef}
+          />
+          <CoverageBar
+            label={isHe ? "מקור · נוסחאות" : "Formula provenance"}
+            value={report.coverage.formulaSourceRef}
           />
           <CoverageBar
             label={isHe ? "בלוקים במצגת" : "Blocks in deck"}

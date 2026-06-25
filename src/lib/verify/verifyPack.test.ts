@@ -80,6 +80,42 @@ describe("verifyPack (spec §7 anti-hallucination)", () => {
     expect(r.counts.error + r.counts.warn + r.counts.info).toBe(r.findings.length);
   });
 
+  it("flags concept without sourceRef as warn (spec §7)", () => {
+    const r = verifyPack(hebrewFinancePack);
+    expect(r.findings.some((f) => f.code === "concept_no_provenance")).toBe(true);
+  });
+
+  it("flags formula without sourceRef as warn (spec §7)", () => {
+    const r = verifyPack(hebrewFinancePack);
+    expect(r.findings.some((f) => f.code === "formula_no_provenance")).toBe(true);
+  });
+
+  it("flags unknown source id on a formula sourceRef", () => {
+    const broken: CoursePack = {
+      ...hebrewFinancePack,
+      blocks: hebrewFinancePack.blocks.map((b, i) =>
+        i === 0
+          ? {
+              ...b,
+              formulas: b.formulas.map((f, fi) =>
+                fi === 0 ? { ...f, sourceRef: "src999 p. 4" } : f,
+              ),
+            }
+          : b,
+      ),
+    };
+    const r = verifyPack(broken);
+    expect(r.findings.some((f) => f.code === "unknown_source_id")).toBe(true);
+  });
+
+  it("counts conceptSourceRef + formulaSourceRef coverage", () => {
+    const r = verifyPack(hebrewFinancePack);
+    expect(typeof r.coverage.conceptSourceRef).toBe("number");
+    expect(typeof r.coverage.formulaSourceRef).toBe("number");
+    expect(r.coverage.conceptSourceRef).toBeGreaterThanOrEqual(0);
+    expect(r.coverage.formulaSourceRef).toBeGreaterThanOrEqual(0);
+  });
+
   it("is deterministic", () => {
     const a = verifyPack(hebrewFinancePack);
     const b = verifyPack(hebrewFinancePack);
