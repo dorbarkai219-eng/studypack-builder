@@ -1,11 +1,11 @@
-import { getPack, listPacks } from "@/lib/coursepack/registry";
+import { getPack, listMockPackIds } from "@/lib/coursepack/registry";
 import { exportDeckPptx } from "@/lib/deck/exportPptx";
 
 // pptxgenjs is Node-only (uses jszip + fs-style APIs) — force the Node runtime.
 export const runtime = "nodejs";
 
-export async function generateStaticParams() {
-  return (await listPacks()).map((p) => ({ packId: p.course.id }));
+export function generateStaticParams() {
+  return listMockPackIds().map((id) => ({ packId: id }));
 }
 
 export async function GET(

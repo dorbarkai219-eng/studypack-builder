@@ -63,6 +63,18 @@ folded into the conversation.
 Tuned for Anthropic's per-message size + cost ceilings; over-limit returns
 413 with a human message before any model call happens.
 
+### Auth (optional)
+
+Clerk is wired in optionally. With no `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+in the env the app runs in single-user dev mode and every route is
+reachable. With the keys set, sign-in is required for `/ingest` +
+`/api/ingest` + `/api/packs/[id]` CRUD, each user gets their own pack
+namespace in the store (`data/packs/{userId}/{id}.json` under the fs
+adapter), and the standard `<UserButton />` shows on the home toolbar.
+
+Keys live at https://dashboard.clerk.com → API Keys; the matching
+sign-in / sign-up UI lives at `/sign-in` and `/sign-up`.
+
 ### Persistence in production
 
 `src/lib/coursepack/store.ts` exposes a tiny `PackStore` interface

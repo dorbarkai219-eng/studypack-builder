@@ -11,6 +11,7 @@ import {
 } from "@/lib/ingest/extract";
 import { getStoredPack, savePack } from "@/lib/coursepack/store";
 import { checkRateLimit } from "@/lib/ingest/rateLimit";
+import { getUserId } from "@/lib/auth/userId";
 
 // Anthropic SDK + filesystem persistence require Node.
 export const runtime = "nodejs";
@@ -25,13 +26,21 @@ const MAX_BYTES_PER_FILE = 15 * 1024 * 1024;
 const MAX_FILES = 8;
 
 export async function POST(req: Request) {
-  // Rate-limit by client IP (best-effort — falls back to a single shared
-  // bucket if no proxy header is set, which is the cautious default).
+  // Auth: middleware already gates this route, but the API can also be
+  // hit directly; require a user id here so the store key is never
+  // empty / cross-user.
+  let userId: string;
+  try {
+    userId = await getUserId();
+  } catch {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+  // Rate-limit per user (or per IP when auth is off and userId is the dev sentinel).
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
     "unknown";
-  const limit = checkRateLimit(`ingest:${ip}`);
+  const limit = checkRateLimit(`ingest:${userId}:${ip}`);
   if (!limit.ok)
     return NextResponse.json(
       {
@@ -84,7 +93,7 @@ export async function POST(req: Request) {
   // Caller can opt in to overwrite with overwrite=true.
   const overwrite = String(form.get("overwrite") ?? "").toLowerCase() === "true";
   if (!overwrite) {
-    const existing = await getStoredPack(id);
+    const existing = await getStoredPack(userId, id);
     if (existing)
       return NextResponse.json(
         {
@@ -170,7 +179,7 @@ export async function POST(req: Request) {
 
   try {
     const pack = await structureCoursePack(files, meta);
-    await savePack(pack);
+    await savePack(userId, pack);
     return NextResponse.json({ ok: true, id: pack.course.id });
   } catch (err) {
     const message =

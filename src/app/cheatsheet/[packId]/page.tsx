@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { getPack, listPacks } from "@/lib/coursepack/registry";
+import { getPack, listMockPackIds } from "@/lib/coursepack/registry";
 import { CheatSheetView } from "@/components/cheatsheet/CheatSheetView";
 
-export async function generateStaticParams() {
-  return (await listPacks()).map((p) => ({ packId: p.course.id }));
+export function generateStaticParams() {
+  return listMockPackIds().map((id) => ({ packId: id }));
 }
 
 export default async function CheatSheetPage({

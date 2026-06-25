@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listPacks } from "@/lib/coursepack/registry";
 import { daysUntil } from "@/lib/date";
+import { AuthHeaderControls } from "@/components/auth/AuthHeaderControls";
 
 export default async function Home() {
   const packs = await listPacks();
@@ -8,12 +9,15 @@ export default async function Home() {
     <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="m-0 text-2xl font-bold text-navy">StudyPack Builder</h1>
-        <Link
-          href="/ingest"
-          className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95"
-        >
-          + Ingest course materials
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/ingest"
+            className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95"
+          >
+            + Ingest course materials
+          </Link>
+          <AuthHeaderControls />
+        </div>
       </div>
       <p className="mt-1 text-muted">
         Coordinated, exam-ready study packs from your course materials —

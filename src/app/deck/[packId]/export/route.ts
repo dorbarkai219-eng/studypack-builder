@@ -1,8 +1,8 @@
-import { getPack, listPacks } from "@/lib/coursepack/registry";
+import { getPack, listMockPackIds } from "@/lib/coursepack/registry";
 import { exportDeckHtml } from "@/lib/deck/exportHtml";
 
-export async function generateStaticParams() {
-  return (await listPacks()).map((p) => ({ packId: p.course.id }));
+export function generateStaticParams() {
+  return listMockPackIds().map((id) => ({ packId: id }));
 }
 
 export async function GET(
