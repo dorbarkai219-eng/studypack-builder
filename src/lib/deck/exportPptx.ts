@@ -1,7 +1,6 @@
 import pptxgen from "pptxgenjs";
 import type { CoursePack } from "@/lib/coursepack/schema";
 import { buildDeck } from "@/lib/deck/buildDeck";
-import type { DeckSlide } from "@/lib/deck/types";
 import { makeLabels } from "@/lib/i18n/labels";
 
 /**

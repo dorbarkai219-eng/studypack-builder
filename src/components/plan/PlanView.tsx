@@ -35,6 +35,11 @@ export function PlanView({ pack }: { pack: CoursePack }) {
   const [hydrated, setHydrated] = useState(false);
 
   // Load persisted progress on mount (spec §4.5 — survives reload).
+  // SSR renders with empty state; client mounts and replays localStorage —
+  // the setChecked / setHydrated-in-effect IS the intended pattern (a lazy
+  // initialiser would mismatch SSR vs hydration). The lint rule targets
+  // cascading-render anti-patterns; ours fires once on mount.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey(pack.course.id));
@@ -44,6 +49,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
     }
     setHydrated(true);
   }, [pack.course.id]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persist on change (after hydration so we never clobber stored state).
   useEffect(() => {

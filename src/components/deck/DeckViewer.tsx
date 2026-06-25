@@ -16,7 +16,7 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
   const total = slides.length;
 
   const go = useCallback(
-    (next: number) => setCurrent((c) => Math.min(total - 1, Math.max(0, next))),
+    (next: number) => setCurrent(() => Math.min(total - 1, Math.max(0, next))),
     [total],
   );
   const jumpTo = useCallback(
