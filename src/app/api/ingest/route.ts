@@ -9,7 +9,8 @@ import {
   extractDocxText,
   extractPptxText,
 } from "@/lib/ingest/extract";
-import { savePack } from "@/lib/coursepack/store";
+import { getStoredPack, savePack } from "@/lib/coursepack/store";
+import { checkRateLimit } from "@/lib/ingest/rateLimit";
 
 // Anthropic SDK + filesystem persistence require Node.
 export const runtime = "nodejs";
@@ -24,6 +25,26 @@ const MAX_BYTES_PER_FILE = 15 * 1024 * 1024;
 const MAX_FILES = 8;
 
 export async function POST(req: Request) {
+  // Rate-limit by client IP (best-effort — falls back to a single shared
+  // bucket if no proxy header is set, which is the cautious default).
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+  const limit = checkRateLimit(`ingest:${ip}`);
+  if (!limit.ok)
+    return NextResponse.json(
+      {
+        error: `Rate limited — retry in ${limit.retryAfterSeconds}s`,
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(limit.retryAfterSeconds),
+        },
+      },
+    );
+
   let form: FormData;
   try {
     form = await req.formData();
@@ -58,6 +79,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "direction must be ltr or rtl" }, { status: 400 });
   if (!DATE_RE.test(examDate))
     return NextResponse.json({ error: "examDate must be YYYY-MM-DD" }, { status: 400 });
+
+  // Idempotency — bail before doing expensive work if the id is already taken.
+  // Caller can opt in to overwrite with overwrite=true.
+  const overwrite = String(form.get("overwrite") ?? "").toLowerCase() === "true";
+  if (!overwrite) {
+    const existing = await getStoredPack(id);
+    if (existing)
+      return NextResponse.json(
+        {
+          error: `Pack "${id}" already exists — re-submit with overwrite=true to replace it`,
+        },
+        { status: 409 },
+      );
+  }
 
   const files: IngestFile[] = [];
   let totalBytes = 0;

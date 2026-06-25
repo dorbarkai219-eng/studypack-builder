@@ -22,10 +22,12 @@ vi.mock("@/lib/coursepack/store", () => ({
 
 import { POST } from "@/app/api/ingest/route";
 import { structureCoursePack } from "@/lib/ingest/structure";
-import { savePack } from "@/lib/coursepack/store";
+import { getStoredPack, savePack } from "@/lib/coursepack/store";
+import { resetRateLimit } from "@/lib/ingest/rateLimit";
 
 const structureMock = vi.mocked(structureCoursePack);
 const saveMock = vi.mocked(savePack);
+const getMock = vi.mocked(getStoredPack);
 
 function form(parts: Record<string, string | Blob>): FormData {
   const f = new FormData();
@@ -54,6 +56,8 @@ const VALID = {
 beforeEach(() => {
   structureMock.mockReset();
   saveMock.mockReset().mockResolvedValue(undefined);
+  getMock.mockReset().mockResolvedValue(undefined);
+  resetRateLimit();
 });
 
 describe("POST /api/ingest", () => {
@@ -130,6 +134,53 @@ describe("POST /api/ingest", () => {
     const res = await POST(new Request("http://x/api/ingest", { method: "POST", body: fd }));
     expect(res.status).toBe(503);
     expect((await res.json()).error).toMatch(/ANTHROPIC_API_KEY/);
+  });
+
+  it("409 when an existing pack with the same id is stored (no overwrite)", async () => {
+    getMock.mockResolvedValue({
+      ...englishBiologyPack,
+      course: { ...englishBiologyPack.course, id: "test-pack" },
+    });
+    const fd = form({ ...VALID, text: "hi" });
+    const res = await POST(new Request("http://x/api/ingest", { method: "POST", body: fd }));
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toMatch(/already exists/);
+    expect(structureMock).not.toHaveBeenCalled();
+  });
+
+  it("allows the call through when overwrite=true even if the pack exists", async () => {
+    getMock.mockResolvedValue({
+      ...englishBiologyPack,
+      course: { ...englishBiologyPack.course, id: "test-pack" },
+    });
+    structureMock.mockResolvedValue({
+      ...englishBiologyPack,
+      course: { ...englishBiologyPack.course, id: "test-pack" },
+    });
+    const fd = form({ ...VALID, text: "hi", overwrite: "true" });
+    const res = await POST(new Request("http://x/api/ingest", { method: "POST", body: fd }));
+    expect(res.status).toBe(200);
+  });
+
+  it("429 once the rate-limit bucket is drained", async () => {
+    structureMock.mockResolvedValue({
+      ...englishBiologyPack,
+      course: { ...englishBiologyPack.course, id: "test-pack" },
+    });
+    // Default bucket: capacity 5. Hammer 6 from the same IP.
+    let last: Response | undefined;
+    for (let i = 0; i < 6; i++) {
+      const fd = form({ ...VALID, text: "hi" });
+      last = await POST(
+        new Request("http://x/api/ingest", {
+          method: "POST",
+          body: fd,
+          headers: { "x-forwarded-for": "10.0.0.1" },
+        }),
+      );
+    }
+    expect(last?.status).toBe(429);
+    expect(last?.headers.get("Retry-After")).toBeTruthy();
   });
 
   it("500 on any other structurer failure", async () => {
