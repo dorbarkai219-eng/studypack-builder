@@ -45,16 +45,32 @@ describe("structureCoursePack", () => {
       : never;
   }
 
-  it("calls Claude, validates schema, overwrites course + sources with host values", async () => {
-    // Reuse the existing mock pack's blocks/summaries as a "good model response".
-    const modelReply = JSON.stringify({
-      // course + sources will be overwritten — emit garbage to prove that.
-      course: { id: "WRONG", title: "WRONG", subject: "x", language: "x", direction: "rtl", examDate: "1999-01-01", weakTopics: [], outputLanguage: "x" },
-      sources: [{ id: "garbage", filename: "x", type: "text", pages: 0 }],
+  function toolUseClient(input: unknown) {
+    return {
+      messages: {
+        create: vi.fn().mockResolvedValue({
+          content: [
+            {
+              type: "tool_use",
+              id: "tu_1",
+              name: "submit_course_pack",
+              input,
+            },
+          ],
+        }),
+      },
+    } as unknown as ConstructorParameters<typeof structureCoursePack>[2] extends {
+      client?: infer C;
+    }
+      ? C
+      : never;
+  }
+
+  it("calls Claude with the submit_course_pack tool forced, validates, overwrites course + sources", async () => {
+    const client = toolUseClient({
       blocks: englishBiologyPack.blocks,
       summaries: englishBiologyPack.summaries,
     });
-    const client = fakeClient("```json\n" + modelReply + "\n```");
     const pack = await structureCoursePack(
       [{ filename: "notes.txt", type: "text", data: Buffer.from("hello") }],
       META,
@@ -66,9 +82,29 @@ describe("structureCoursePack", () => {
     expect(pack.sources[0].id).toBe("src1");
     expect(pack.sources[0].filename).toBe("notes.txt");
     expect(pack.blocks.length).toBeGreaterThan(0);
+    // Tool was forced.
+    const args = (
+      client as unknown as { messages: { create: { mock: { calls: Array<Array<{ tool_choice?: { type: string; name: string }; tools?: Array<{ name: string }> }>> } } } }
+    ).messages.create.mock.calls[0][0];
+    expect(args.tool_choice).toEqual({ type: "tool", name: "submit_course_pack" });
+    expect(args.tools?.[0].name).toBe("submit_course_pack");
   });
 
-  it("throws when model returns malformed JSON", async () => {
+  it("falls back to extractJson when the model emits text instead of a tool call", async () => {
+    const fallback = JSON.stringify({
+      blocks: englishBiologyPack.blocks,
+      summaries: englishBiologyPack.summaries,
+    });
+    const client = fakeClient("```json\n" + fallback + "\n```");
+    const pack = await structureCoursePack(
+      [{ filename: "n.txt", type: "text", data: Buffer.from("hello") }],
+      META,
+      { client },
+    );
+    expect(pack.course.id).toBe("test-pack");
+  });
+
+  it("throws when model returns malformed JSON (no tool call either)", async () => {
     const client = fakeClient("definitely not json");
     await expect(
       structureCoursePack(

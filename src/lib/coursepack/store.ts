@@ -4,48 +4,93 @@ import path from "node:path";
 import { parseCoursePack, type CoursePack } from "@/lib/coursepack/schema";
 
 /**
- * Filesystem-backed pack store. The mock registry stays in-memory; ingested
- * packs are persisted under data/packs/{id}.json so they survive dev restarts
- * and Next's worker-per-route process model. Real auth/DB is M-later.
+ * Pack store — a tiny three-method async interface (savePack /
+ * loadStoredPacks / getStoredPack) that any backend can implement. The
+ * default impl persists JSON to data/packs/{id}.json, which is fine in
+ * dev but breaks on serverless deploys where the disk is ephemeral and
+ * read-only at request time.
+ *
+ * Swap by setting STUDYPACK_STORE: "fs" (default) or "memory". A real
+ * KV / Postgres / R2 backend would add a new branch here without
+ * touching anything in the route or registry layer.
  */
 
-const DIR = path.join(process.cwd(), "data", "packs");
-
-export async function ensureDir(): Promise<void> {
-  await fs.mkdir(DIR, { recursive: true });
+export interface PackStore {
+  savePack(pack: CoursePack): Promise<void>;
+  loadStoredPacks(): Promise<CoursePack[]>;
+  getStoredPack(id: string): Promise<CoursePack | undefined>;
 }
 
-export async function savePack(pack: CoursePack): Promise<void> {
-  await ensureDir();
-  const file = path.join(DIR, `${pack.course.id}.json`);
-  await fs.writeFile(file, JSON.stringify(pack, null, 2), "utf8");
-}
+// ── Filesystem adapter (dev default) ────────────────────────────────────────
+const FS_DIR = path.join(process.cwd(), "data", "packs");
 
-export async function loadStoredPacks(): Promise<CoursePack[]> {
-  try {
-    const files = await fs.readdir(DIR);
-    const packs: CoursePack[] = [];
-    for (const f of files) {
-      if (!f.endsWith(".json")) continue;
-      try {
-        const raw = await fs.readFile(path.join(DIR, f), "utf8");
-        packs.push(parseCoursePack(JSON.parse(raw)));
-      } catch (err) {
-        // skip malformed file but log
-        console.warn(`[store] skipped ${f}:`, err);
+const fsStore: PackStore = {
+  async savePack(pack) {
+    await fs.mkdir(FS_DIR, { recursive: true });
+    await fs.writeFile(
+      path.join(FS_DIR, `${pack.course.id}.json`),
+      JSON.stringify(pack, null, 2),
+      "utf8",
+    );
+  },
+  async loadStoredPacks() {
+    try {
+      const files = await fs.readdir(FS_DIR);
+      const packs: CoursePack[] = [];
+      for (const f of files) {
+        if (!f.endsWith(".json")) continue;
+        try {
+          const raw = await fs.readFile(path.join(FS_DIR, f), "utf8");
+          packs.push(parseCoursePack(JSON.parse(raw)));
+        } catch (err) {
+          console.warn(`[store/fs] skipped ${f}:`, err);
+        }
       }
+      return packs;
+    } catch {
+      return [];
     }
-    return packs;
-  } catch {
-    return [];
-  }
+  },
+  async getStoredPack(id) {
+    try {
+      const raw = await fs.readFile(path.join(FS_DIR, `${id}.json`), "utf8");
+      return parseCoursePack(JSON.parse(raw));
+    } catch {
+      return undefined;
+    }
+  },
+};
+
+// ── In-memory adapter (serverless-friendly within a single instance) ───────
+// Survives the process lifetime — fine for demos and `next start`; lost on
+// cold starts. A real serverless deploy should swap in a KV / DB adapter.
+const memoryPacks = new Map<string, CoursePack>();
+const memoryStore: PackStore = {
+  async savePack(pack) {
+    memoryPacks.set(pack.course.id, pack);
+  },
+  async loadStoredPacks() {
+    return Array.from(memoryPacks.values());
+  },
+  async getStoredPack(id) {
+    return memoryPacks.get(id);
+  },
+};
+
+function pickAdapter(): PackStore {
+  const env = process.env.STUDYPACK_STORE?.toLowerCase();
+  if (env === "memory") return memoryStore;
+  // Default to fs even when env is unset / unknown — dev-friendly.
+  return fsStore;
 }
 
-export async function getStoredPack(id: string): Promise<CoursePack | undefined> {
-  try {
-    const raw = await fs.readFile(path.join(DIR, `${id}.json`), "utf8");
-    return parseCoursePack(JSON.parse(raw));
-  } catch {
-    return undefined;
-  }
-}
+const adapter = pickAdapter();
+
+export const savePack: PackStore["savePack"] = (p) => adapter.savePack(p);
+export const loadStoredPacks: PackStore["loadStoredPacks"] = () =>
+  adapter.loadStoredPacks();
+export const getStoredPack: PackStore["getStoredPack"] = (id) =>
+  adapter.getStoredPack(id);
+
+/** Exposed for direct adapter access if a caller really wants a specific impl. */
+export const adapters = { fs: fsStore, memory: memoryStore } as const;

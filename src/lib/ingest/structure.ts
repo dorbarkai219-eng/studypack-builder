@@ -1,6 +1,14 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { parseCoursePack, type CoursePack, type Source } from "@/lib/coursepack/schema";
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+import {
+  BlockSchema,
+  SummariesSchema,
+  parseCoursePack,
+  type CoursePack,
+  type Source,
+} from "@/lib/coursepack/schema";
 
 /**
  * Ingestion → CoursePack structuring (spec §4.1).
@@ -156,6 +164,40 @@ function filesToSources(files: IngestFile[]): Source[] {
 /** Maps "pptx"/"docx" → "text" for the LLM block path. */
 export type ExtractedKind = "pdf" | "text";
 
+/**
+ * The portion of CoursePack the model is responsible for. Course +
+ * sources are host-controlled and merged in after extraction, so we
+ * don't waste prompt tokens (or trust budget) on them.
+ */
+const ModelOutputSchema = z.object({
+  blocks: z.array(BlockSchema),
+  summaries: SummariesSchema,
+});
+
+const TOOL_NAME = "submit_course_pack";
+
+/**
+ * Build the Anthropic tool definition. Returns the same shape every
+ * call — pure, deterministic. We inline refs so the tool input_schema
+ * is a single object (Anthropic accepts JSON Schema draft-07).
+ */
+function buildSubmitTool(): Anthropic.Tool {
+  // zodToJsonSchema returns either a wrapper { $ref, definitions } or a
+  // bare schema depending on options. We name the root and then unwrap.
+  const generated = zodToJsonSchema(ModelOutputSchema, {
+    name: "CoursePackContent",
+    $refStrategy: "none",
+  }) as { definitions?: Record<string, unknown> };
+  const inputSchema =
+    (generated.definitions?.CoursePackContent as unknown) ?? generated;
+  return {
+    name: TOOL_NAME,
+    description:
+      "Submit the structured CoursePack content (blocks + summaries) extracted from the uploaded materials. Call this exactly once with all fields populated.",
+    input_schema: inputSchema as Anthropic.Tool["input_schema"],
+  };
+}
+
 export async function structureCoursePack(
   files: IngestFile[],
   meta: IngestMeta,
@@ -188,8 +230,7 @@ export async function structureCoursePack(
   }
   content.push({ type: "text", text: userInstructions(meta) });
 
-  // Conversation state — one initial turn, then up to one retry that
-  // includes the model's previous (malformed) reply + a corrective hint.
+  const tool = buildSubmitTool();
   const messages: Anthropic.MessageParam[] = [{ role: "user", content }];
   const maxAttempts = 2;
   let lastError: Error | null = null;
@@ -200,13 +241,25 @@ export async function structureCoursePack(
       max_tokens: opts.maxTokens ?? 16_000,
       system: SYSTEM_PROMPT,
       messages,
+      tools: [tool],
+      // Force the tool — eliminates "model emitted prose instead of JSON".
+      tool_choice: { type: "tool", name: TOOL_NAME },
     });
+    // Tool input is the structured object — no regex parsing needed.
+    const toolUse = resp.content.find(
+      (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === TOOL_NAME,
+    );
+    // Fallback: some older models or refusals still emit a text block
+    // with JSON. extractJson handles fences + brace walking.
     const text = resp.content
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)
       .join("\n");
     try {
-      const raw = extractJson(text) as Record<string, unknown>;
+      const raw = (toolUse?.input ?? (text.trim() ? extractJson(text) : {})) as Record<
+        string,
+        unknown
+      >;
       // Overwrite course + sources with host-controlled values so Claude
       // can't accidentally rename the pack or invent provenance ids.
       const candidate = {
@@ -227,14 +280,21 @@ export async function structureCoursePack(
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt === maxAttempts) break;
-      // Hand the model its bad reply + a corrective instruction.
+      // Hand the model its previous output + a corrective instruction.
       messages.push(
-        { role: "assistant", content: text },
+        { role: "assistant", content: resp.content },
         {
           role: "user",
-          content: `Your previous response could not be parsed: ${lastError.message.slice(0, 240)}.
-
-Return ONLY the CoursePack JSON object as specified — no prose, no markdown fences, no commentary. All required fields must be present and types must match the Zod schema exactly.`,
+          content: toolUse
+            ? [
+                {
+                  type: "tool_result",
+                  tool_use_id: toolUse.id,
+                  is_error: true,
+                  content: `Validation failed: ${lastError.message.slice(0, 240)}. Re-call ${TOOL_NAME} with corrected fields.`,
+                },
+              ]
+            : `Your previous response could not be parsed: ${lastError.message.slice(0, 240)}. Call the ${TOOL_NAME} tool with the structured content.`,
         },
       );
     }
