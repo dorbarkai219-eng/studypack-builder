@@ -121,50 +121,20 @@ export const SummariesSchema = z.object({
 });
 export type Summaries = z.infer<typeof SummariesSchema>;
 
-export const SlideSchema = z.object({
-  id: z.string(),
-  blockId: z.string(),
-  title: z.string(),
-  kind: z.enum(["title", "toc", "concept", "formula", "example", "summary"]),
-});
-export type Slide = z.infer<typeof SlideSchema>;
-
-export const DeckSchema = z.object({
-  slides: z.array(SlideSchema).default([]),
-});
-export type Deck = z.infer<typeof DeckSchema>;
-
-export const PlanTaskSchema = z.object({
-  task: z.string(),
-  done: z.boolean().default(false),
-});
-export type PlanTask = z.infer<typeof PlanTaskSchema>;
-
-export const PlanDaySchema = z.object({
-  day: z.number().int().positive(),
-  phase: z.string(),
-  star: z.boolean().default(false),
-  /** Slide ids/titles in deck order (spec §3.7 plan↔deck alignment). */
-  slideRefs: z.array(z.string()).default([]),
-  learn: z.array(PlanTaskSchema).default([]),
-  practice: z.array(PlanTaskSchema).default([]),
-  goal: z.string(),
-  materials: z.string().optional(),
-});
-export type PlanDay = z.infer<typeof PlanDaySchema>;
-
-export const PlanSchema = z.object({
-  days: z.array(PlanDaySchema).default([]),
-});
-export type Plan = z.infer<typeof PlanSchema>;
-
+/**
+ * NOTE: deck STRUCTURE (slide list) and plan STRUCTURE (study days) are
+ * NOT persisted on the CoursePack — they are derived fresh on every render
+ * via `buildDeck(pack)` and `buildPlan(pack, totalDays)`. Their TypeScript
+ * types live next to the builders (`src/lib/deck/types.ts`,
+ * `src/lib/plan/types.ts`) so they can never drift from the source of
+ * truth. Zod's default object behaviour silently strips any extra `deck`
+ * or `plan` keys on legacy persisted data — no migration needed.
+ */
 export const CoursePackSchema = z.object({
   course: CourseSchema,
   sources: z.array(SourceSchema).default([]),
   blocks: z.array(BlockSchema).default([]),
   summaries: SummariesSchema,
-  deck: DeckSchema.default({ slides: [] }),
-  plan: PlanSchema.default({ days: [] }),
 });
 export type CoursePack = z.infer<typeof CoursePackSchema>;
 

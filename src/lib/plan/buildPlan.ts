@@ -1,4 +1,5 @@
-import type { CoursePack, Block, PlanDay } from "@/lib/coursepack/schema";
+import type { CoursePack, Block } from "@/lib/coursepack/schema";
+import type { PlanDay } from "@/lib/plan/types";
 import { buildDeck } from "@/lib/deck/buildDeck";
 
 /**
