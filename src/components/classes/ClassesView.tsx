@@ -27,7 +27,7 @@ export function ClassesView() {
       if (r.status === 401) {
         setState({
           kind: "error",
-          message: "Sign in is required to use classes.",
+          message: "צריך להתחבר כדי להשתמש בכיתות.",
         });
         return;
       }
@@ -117,37 +117,42 @@ export function ClassesView() {
 
   return (
     <div className="mt-6 grid gap-6">
-      <section className="grid gap-3 rounded-xl border border-lines bg-paper p-5 shadow-sm">
-        <h2 className="m-0 text-base font-bold text-ink">Create a class (teacher)</h2>
+      <section className="grid gap-3 rounded-2xl border border-lines bg-paper p-5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl" aria-hidden>🧑‍🏫</span>
+          <h2 className="m-0 text-base font-bold text-ink">צור כיתה (מורה)</h2>
+        </div>
         <p className="m-0 text-xs text-muted">
-          Publish one or more demo packs to the class. Each created class gets a
-          6-character join code your students will enter.
+          פרסם ערכת לימוד אחת או יותר לכיתה. כל כיתה מקבלת קוד הצטרפות בן 6
+          תווים שהתלמידים שלך יקלידו.
         </p>
         <form onSubmit={onCreate} className="grid gap-3 sm:grid-cols-2">
           <input
             name="id"
-            placeholder="class id (slug, e.g. fin-2025)"
+            placeholder="מזהה כיתה (אנגלית/ספרות/מקפים, למשל fin-2025)"
             required
             pattern="^[a-z0-9][a-z0-9-]{1,40}$"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
           <input
             name="name"
-            placeholder="display name"
+            placeholder="שם הכיתה"
             required
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
           <input
             name="packIds"
-            placeholder="pack ids (comma sep, e.g. hebrew-finance,english-biology)"
-            className="rounded-md border border-lines px-2 py-1 text-sm sm:col-span-2"
+            placeholder="מזהי ערכות (מופרדים בפסיק, למשל hebrew-finance,english-biology)"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm sm:col-span-2"
           />
           <button
             type="submit"
             disabled={createState.kind === "pending"}
             className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
           >
-            {createState.kind === "pending" ? "Creating…" : "Create class"}
+            {createState.kind === "pending" ? "יוצר…" : "צור כיתה"}
           </button>
           {createState.kind === "error" && (
             <span className="self-center text-sm text-mistake">
@@ -160,27 +165,31 @@ export function ClassesView() {
         </form>
       </section>
 
-      <section className="grid gap-3 rounded-xl border border-lines bg-paper p-5 shadow-sm">
-        <h2 className="m-0 text-base font-bold text-ink">Join a class (student)</h2>
+      <section className="grid gap-3 rounded-2xl border border-lines bg-paper p-5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl" aria-hidden>🎓</span>
+          <h2 className="m-0 text-base font-bold text-ink">הצטרף לכיתה (תלמיד)</h2>
+        </div>
         <form onSubmit={onJoin} className="grid gap-3 sm:grid-cols-2">
           <input
             name="code"
-            placeholder="6-char join code"
+            placeholder="קוד הצטרפות (6 תווים)"
             required
             pattern="^[A-Za-z0-9]{6}$"
-            className="rounded-md border border-lines px-2 py-1 font-mono uppercase text-sm tracking-widest"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-center font-mono text-sm uppercase tracking-widest"
           />
           <input
             name="label"
-            placeholder="your name (optional)"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            placeholder="השם שלך (אופציונלי)"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
           <button
             type="submit"
             disabled={joinState.kind === "pending"}
             className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95 disabled:opacity-50"
           >
-            {joinState.kind === "pending" ? "Joining…" : "Join"}
+            {joinState.kind === "pending" ? "מצטרף…" : "הצטרף"}
           </button>
           {joinState.kind === "error" && (
             <span className="self-center text-sm text-mistake">{joinState.message}</span>
@@ -192,23 +201,23 @@ export function ClassesView() {
       </section>
 
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Your classes
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
+          הכיתות שלך
         </h2>
         {state.kind === "loading" && (
-          <p className="mt-2 text-sm text-muted">Loading…</p>
+          <p className="mt-2 text-sm text-muted">טוען…</p>
         )}
         {state.kind === "error" && (
           <p className="mt-2 text-sm text-mistake">{state.message}</p>
         )}
         {state.kind === "ok" && (
           <>
-            <ClassList title="As teacher" classes={state.owned} showCode />
-            <ClassList title="As student" classes={state.member} />
+            <ClassList title="כמורה" classes={state.owned} showCode />
+            <ClassList title="כתלמיד" classes={state.member} />
             {state.owned.length + state.member.length === 0 && (
-              <div className="mt-2 rounded-xl border-2 border-dashed border-lines bg-paper/60 p-6 text-center">
+              <div className="mt-2 rounded-2xl border-2 border-dashed border-lines bg-paper/60 p-6 text-center">
                 <p className="m-0 text-sm text-ink">
-                  No classes yet — create one above, or join with a code.
+                  עדיין אין כיתות — צור אחת למעלה, או הצטרף עם קוד.
                 </p>
               </div>
             )}
@@ -249,8 +258,7 @@ function ClassList({
               )}
             </div>
             <p className="m-0 mt-1 text-xs text-muted">
-              {c.members.length} member{c.members.length === 1 ? "" : "s"} ·{" "}
-              {c.packIds.length} pack{c.packIds.length === 1 ? "" : "s"}
+              {c.members.length} חברים · {c.packIds.length} ערכות
             </p>
             {c.packIds.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">

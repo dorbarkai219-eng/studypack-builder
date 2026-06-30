@@ -20,13 +20,13 @@ export async function AuthHeaderControls() {
           href="/sign-in"
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
         >
-          Sign in
+          התחברות
         </Link>
         <Link
           href="/sign-up"
           className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110"
         >
-          Sign up
+          הרשמה
         </Link>
       </div>
     );

@@ -75,92 +75,96 @@ export function IngestForm() {
       onSubmit={onSubmit}
       className="mt-6 grid gap-5 rounded-xl border border-lines bg-paper p-5 shadow-sm"
     >
-      <SectionHeader index={1} title="Course meta" />
-      <Field label="Pack id (slug, used in the URL)">
+      <SectionHeader index={1} title="פרטי הקורס" />
+      <Field label="מזהה הערכה (URL slug)">
         <input
           name="id"
           required
           placeholder="my-course"
           pattern="^[a-z0-9][a-z0-9-]{1,40}$"
-          className="rounded-md border border-lines px-2 py-1 text-sm"
+          dir="ltr"
+          className="rounded-md border border-lines px-2 py-1.5 text-sm"
         />
       </Field>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Course title">
+        <Field label="שם הקורס">
           <input
             name="title"
             required
-            placeholder="Corporate Finance"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            placeholder="מימון תאגידי והערכת שווי"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
-        <Field label="Subject">
+        <Field label="נושא">
           <input
             name="subject"
             required
-            placeholder="Finance"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            placeholder="מימון"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Field label="Source language">
+        <Field label="שפת המקור">
           <input
             name="language"
             required
             placeholder="he"
-            defaultValue="en"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            defaultValue="he"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
-        <Field label="Output language">
+        <Field label="שפת הפלט">
           <input
             name="outputLanguage"
-            placeholder="en"
-            defaultValue="en"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            placeholder="he"
+            defaultValue="he"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
-        <Field label="Direction">
+        <Field label="כיוון">
           <select
             name="direction"
-            defaultValue="ltr"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            defaultValue="rtl"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           >
-            <option value="ltr">ltr</option>
-            <option value="rtl">rtl</option>
+            <option value="rtl">rtl (עברית)</option>
+            <option value="ltr">ltr (אנגלית)</option>
           </select>
         </Field>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Exam date (YYYY-MM-DD)">
+        <Field label="תאריך מבחן (YYYY-MM-DD)">
           <input
             name="examDate"
             required
             placeholder="2026-07-10"
             pattern="^\d{4}-\d{2}-\d{2}$"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            dir="ltr"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
-        <Field label="Weak topics (comma separated)">
+        <Field label="נושאים חלשים (מופרדים בפסיק)">
           <input
             name="weakTopics"
-            placeholder="WACC, derivatives"
-            className="rounded-md border border-lines px-2 py-1 text-sm"
+            placeholder="WACC, מכפילים, DCF"
+            className="rounded-md border border-lines px-2 py-1.5 text-sm"
           />
         </Field>
       </div>
 
       <SectionHeader
         index={2}
-        title="Materials"
-        subtitle={`PDF · PPTX · DOCX · text — up to ${MAX_FILES} files, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB total`}
+        title="חומרים"
+        subtitle={`PDF · PPTX · DOCX · טקסט — עד ${MAX_FILES} קבצים, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} מגה בסה"כ`}
       />
       <Field
-        label={`Upload files (PDF / PPTX / DOCX / .txt — up to ${MAX_FILES} files, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB total)`}
+        label={`העלאת קבצים (PDF / PPTX / DOCX / טקסט — עד ${MAX_FILES} קבצים, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} מגה)`}
       >
         <input
           ref={fileRef}
@@ -186,7 +190,7 @@ export function IngestForm() {
             ))}
             <li className="mt-1 flex items-baseline justify-between gap-2 border-t border-lines pt-1 text-[10px] uppercase tracking-wide text-muted">
               <span>
-                {selected.length}/{MAX_FILES} files
+                {selected.length}/{MAX_FILES} קבצים
               </span>
               <span className={over ? "font-bold text-[#c0322b]" : ""}>
                 {fmtBytes(totalBytes)} / {MAX_BYTES_PER_REQUEST / 1024 / 1024} MB
@@ -196,25 +200,25 @@ export function IngestForm() {
         )}
       </Field>
 
-      <Field label="Or paste raw text">
+      <Field label="או הדבק טקסט גולמי">
         <textarea
           name="text"
           rows={6}
-          placeholder="Paste lecture notes / exam content here"
-          className="rounded-md border border-lines px-2 py-1 font-mono text-xs"
+          placeholder="הדבק כאן סיכומי הרצאות / תוכן מבחן"
+          className="rounded-md border border-lines px-2 py-1.5 font-mono text-xs"
         />
       </Field>
 
-      <SectionHeader index={3} title="Submit" />
+      <SectionHeader index={3} title="שליחה" />
       {(state.kind === "uploading" || state.kind === "ok") && (
         <div className="grid gap-1">
           <div className="flex items-baseline justify-between text-xs text-muted">
             <span>
               {state.kind === "uploading"
-                ? `Claude is structuring your CoursePack… ${elapsed}s`
-                : "Done"}
+                ? `Claude מארגנת את הCoursePack… ${elapsed}ש׳`
+                : "סיים"}
             </span>
-            <span className="font-mono">{progressPct}%</span>
+            <span className="font-mono" dir="ltr">{progressPct}%</span>
           </div>
           <div
             className="h-2 w-full overflow-hidden rounded-full bg-lines/60"
@@ -236,12 +240,15 @@ export function IngestForm() {
           disabled={state.kind === "uploading" || over}
           className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
         >
-          {state.kind === "uploading" ? `Structuring… ${elapsed}s` : "Ingest"}
+          {state.kind === "uploading" ? `מארגן… ${elapsed}ש׳` : "צור ערכה"}
         </button>
         {state.kind === "uploading" && (
           <span className="text-xs text-muted">
-            Claude is reading {selected.length || "your"} source
-            {selected.length === 1 ? "" : "s"} — usually ~30s.
+            Claude קוראת {selected.length || "את החומרים"}{" "}
+            {selected.length > 0
+              ? `${selected.length === 1 ? "מקור" : "מקורות"} `
+              : ""}
+            — לוקח בדרך כלל ~30 שניות.
           </span>
         )}
         {state.kind === "error" && (
@@ -249,27 +256,31 @@ export function IngestForm() {
         )}
         {state.kind === "ok" && (
           <span className="text-sm text-[#15803d]">
-            Ingested as <code className="font-mono">{state.id}</code> —{" "}
+            נוצרה בהצלחה כ-<code className="font-mono" dir="ltr">{state.id}</code> —{" "}
             <a className="underline" href={`/cheatsheet/${state.id}`}>
-              cheat sheet
+              דף נוסחאות
             </a>{" "}
             ·{" "}
             <a className="underline" href={`/deck/${state.id}`}>
-              deck
+              מצגת
             </a>{" "}
             ·{" "}
             <a className="underline" href={`/plan/${state.id}`}>
-              plan
+              תכנית
+            </a>{" "}
+            ·{" "}
+            <a className="underline" href={`/practice/${state.id}`}>
+              תרגול
             </a>{" "}
             ·{" "}
             <a className="underline" href={`/verify/${state.id}`}>
-              verify
+              אימות
             </a>
           </span>
         )}
         {over && state.kind === "idle" && (
           <span className="text-xs text-[#c0322b]">
-            Over the limit — remove a file or pick a smaller one
+            חרגת מהמכסה — הסר קובץ או בחר קטן יותר
           </span>
         )}
       </div>

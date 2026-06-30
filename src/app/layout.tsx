@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StudyPack Builder",
-  description: "Coordinated, exam-ready study packs from your course materials.",
+  title: "StudyPack — ערכת הכנה למבחן מהחומר שלך",
+  description:
+    "מערכת לבניית ערכות הכנה למבחן מחומרי הקורס שלך — דף נוסחאות, מצגת לימוד, תכנית יומית, ותרגול עם משוב AI. עברית, RTL, וחינם להתחיל.",
 };
 
 /**
@@ -40,7 +41,8 @@ export default function RootLayout({
   return (
     <MaybeClerkProvider>
       <html
-        lang="en"
+        lang="he"
+        dir="rtl"
         className={`${heebo.variable} ${geistMono.variable} h-full antialiased`}
       >
         <body className="min-h-full">
@@ -49,7 +51,7 @@ export default function RootLayout({
             href="#main"
             className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-navy focus:px-3 focus:py-1.5 focus:text-sm focus:font-semibold focus:text-paper"
           >
-            Skip to main content
+            דלג לתוכן הראשי
           </a>
           <div id="main">{children}</div>
         </body>
