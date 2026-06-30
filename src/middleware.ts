@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 /**
@@ -17,16 +18,24 @@ const isPublic = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/api/health",
-  "/api/packs", // list endpoint
+  "/api/packs",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  // No Clerk keys configured → middleware is a no-op (dev / unconfigured).
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return;
-  if (!isPublic(req)) await auth.protect();
-});
+const hasClerk =
+  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+  !!process.env.CLERK_SECRET_KEY;
+
+// When Clerk keys are absent (dev / preview without auth), middleware is a
+// no-op — clerkMiddleware itself fails to initialize without keys, so the
+// guard must happen before the factory call, not inside its callback.
+const noopMiddleware = (_req: NextRequest) => undefined;
+
+export default hasClerk
+  ? clerkMiddleware(async (auth, req) => {
+      if (!isPublic(req)) await auth.protect();
+    })
+  : noopMiddleware;
 
 export const config = {
-  // Match every route except Next's internals + static assets.
   matcher: ["/((?!_next|.*\\..*).*)"],
 };
