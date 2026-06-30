@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import type { Block, PracticeItem, Rubric } from "@/lib/coursepack/schema";
+import { calculate } from "@/lib/feedback/calculator";
 
 /**
  * Pillar 4 — feedback grader (handoff §5 #9, §6 "feedback accuracy"):
@@ -54,6 +55,7 @@ export const FeedbackSchema = z.object({
 export type Feedback = z.infer<typeof FeedbackSchema>;
 
 const TOOL_NAME = "submit_feedback";
+const CALC_TOOL_NAME = "calculate";
 const DEFAULT_MODEL = "claude-sonnet-4-5";
 
 const SYSTEM_PROMPT = `You are the Pillar-4 feedback tutor for StudyPack Builder.
@@ -70,7 +72,9 @@ Be calibrated. A blank or off-topic submission gets low scores AND a low confide
 
 Critical: when a reference solution is provided, anchor execution scoring to it — don't second-guess the reference. If the reference is wrong on its face, lower your own confidence rather than the student's grade.
 
-Respond by calling the submit_feedback tool exactly once with all required fields populated. Use the same language as the student's submission for the diagnosis. No prose outside the tool call.`;
+You have a "calculate" tool that evaluates math expressions deterministically (mathjs syntax: + - * / ^ sqrt log exp parentheses, etc.). USE IT for any non-trivial arithmetic the student or the reference does. Do not rely on mental math for execution scoring — call calculate, then compare results. This is critical: handoff §6 calls out that one hallucinated wrong-grade burns trust.
+
+When you're done collecting calculations and ready to score, call the submit_feedback tool exactly once with all required fields populated. Use the same language as the student's submission for the diagnosis. No prose outside the tool calls.`;
 
 export interface GradeInput {
   block: Pick<Block, "id" | "title" | "framing">;
@@ -86,7 +90,7 @@ export interface GradeOptions {
   model?: string;
 }
 
-function buildTool(): Anthropic.Tool {
+function buildSubmitTool(): Anthropic.Tool {
   const generated = zodToJsonSchema(FeedbackSchema, {
     name: "Feedback",
     $refStrategy: "none",
@@ -98,6 +102,25 @@ function buildTool(): Anthropic.Tool {
     description:
       "Submit the structured per-step feedback + three-axis scores + confidence for the student's submission.",
     input_schema: inputSchema as Anthropic.Tool["input_schema"],
+  };
+}
+
+function buildCalcTool(): Anthropic.Tool {
+  return {
+    name: CALC_TOOL_NAME,
+    description:
+      "Evaluate a math expression deterministically (mathjs syntax). Returns { result, ok }. Use this for any non-trivial arithmetic so execution scoring is not based on mental math.",
+    input_schema: {
+      type: "object",
+      properties: {
+        expression: {
+          type: "string",
+          description:
+            "Plain math expression. Examples: '1800 + 220 - 430', '(100 * (1 - 0.03/0.15)) / (0.09 - 0.03)', 'sqrt(2)*pi'.",
+        },
+      },
+      required: ["expression"],
+    },
   };
 }
 
@@ -144,18 +167,57 @@ export async function gradeSubmission(
     },
   ];
 
-  const resp = await client.messages.create({
-    model,
-    max_tokens: 4096,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userBlocks }],
-    tools: [buildTool()],
-    tool_choice: { type: "tool", name: TOOL_NAME },
-  });
+  // Agentic loop: the model can call `calculate` zero or more times to
+  // delegate arithmetic, then must call `submit_feedback` to finish.
+  // tool_choice stays "auto" so the model can choose.
+  const tools = [buildSubmitTool(), buildCalcTool()];
+  const messages: Anthropic.MessageParam[] = [
+    { role: "user", content: userBlocks },
+  ];
+  // Hard cap so a misbehaving model can't bill an infinite loop.
+  const MAX_LOOP_ITERS = 8;
 
-  const toolUse = resp.content.find(
-    (b): b is Anthropic.ToolUseBlock => b.type === "tool_use" && b.name === TOOL_NAME,
+  for (let iter = 0; iter < MAX_LOOP_ITERS; iter++) {
+    const resp = await client.messages.create({
+      model,
+      max_tokens: 4096,
+      system: [
+        { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
+      ],
+      messages,
+      tools,
+    });
+
+    const submit = resp.content.find(
+      (b): b is Anthropic.ToolUseBlock =>
+        b.type === "tool_use" && b.name === TOOL_NAME,
+    );
+    if (submit) return FeedbackSchema.parse(submit.input);
+
+    // No submit_feedback yet — process calculator calls and continue.
+    const calcCalls = resp.content.filter(
+      (b): b is Anthropic.ToolUseBlock =>
+        b.type === "tool_use" && b.name === CALC_TOOL_NAME,
+    );
+    if (calcCalls.length === 0)
+      throw new Error("Model did not call submit_feedback or calculate tool");
+
+    messages.push({ role: "assistant", content: resp.content });
+    const toolResults: Anthropic.ToolResultBlockParam[] = calcCalls.map(
+      (call) => {
+        const input = call.input as { expression?: string };
+        const r = calculate(String(input?.expression ?? ""));
+        return {
+          type: "tool_result",
+          tool_use_id: call.id,
+          content: JSON.stringify(r),
+          is_error: !r.ok,
+        };
+      },
+    );
+    messages.push({ role: "user", content: toolResults });
+  }
+  throw new Error(
+    `Grader did not call submit_feedback within ${MAX_LOOP_ITERS} iterations`,
   );
-  if (!toolUse) throw new Error("Model did not call submit_feedback tool");
-  return FeedbackSchema.parse(toolUse.input);
 }

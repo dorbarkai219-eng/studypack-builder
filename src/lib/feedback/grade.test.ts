@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from "vitest";
+import type Anthropic from "@anthropic-ai/sdk";
 import { FeedbackSchema, gradeSubmission } from "@/lib/feedback/grade";
 
 const SAMPLE_FEEDBACK = {
@@ -77,33 +78,56 @@ describe("FeedbackSchema", () => {
 });
 
 describe("gradeSubmission", () => {
-  it("forces submit_feedback tool, validates schema, returns Feedback", async () => {
+  it("returns Feedback when the model calls submit_feedback on the first turn", async () => {
     const client = toolUseClient(SAMPLE_FEEDBACK);
     const fb = await gradeSubmission(GRADE_INPUT, { client });
     expect(fb.fellIntoTopTrap).toBe(true);
     expect(fb.scores.execution).toBe(3);
     expect(fb.steps).toHaveLength(2);
 
-    const args = (
-      client as unknown as {
-        messages: {
-          create: {
-            mock: {
-              calls: Array<
-                Array<{
-                  tool_choice?: { type: string; name: string };
-                  tools?: Array<{ name: string }>;
-                  system: string;
-                }>
-              >;
-            };
-          };
-        };
-      }
-    ).messages.create.mock.calls[0][0];
-    expect(args.tool_choice).toEqual({ type: "tool", name: "submit_feedback" });
-    expect(args.tools?.[0].name).toBe("submit_feedback");
-    expect(args.system).toMatch(/diagnose, not just answer/i);
+    type MockedClient = { messages: { create: { mock: { calls: unknown[][] } } } };
+    const args = (client as unknown as MockedClient).messages.create.mock
+      .calls[0][0] as {
+      tools?: Array<{ name: string }>;
+      system: Array<{ text: string }>;
+    };
+    const toolNames = (args.tools ?? []).map((t) => t.name).sort();
+    expect(toolNames).toEqual(["calculate", "submit_feedback"]);
+    expect(args.system[0].text).toMatch(/diagnose, not just answer/i);
+  });
+
+  it("runs the agentic loop: handles calculate calls, then submit_feedback", async () => {
+    const calcCall = {
+      type: "tool_use",
+      id: "tu_calc_1",
+      name: "calculate",
+      input: { expression: "1800 + 220 - 430" },
+    };
+    const submitCall = {
+      type: "tool_use",
+      id: "tu_submit_1",
+      name: "submit_feedback",
+      input: SAMPLE_FEEDBACK,
+    };
+    const create = vi
+      .fn()
+      .mockResolvedValueOnce({ content: [calcCall] })
+      .mockResolvedValueOnce({ content: [submitCall] });
+    const client = { messages: { create } } as unknown as Parameters<
+      typeof gradeSubmission
+    >[1]["client"];
+    const fb = await gradeSubmission(GRADE_INPUT, { client });
+    expect(fb.scores.execution).toBe(3);
+    expect(create).toHaveBeenCalledTimes(2);
+    const secondCall = create.mock.calls[1][0];
+    // Second request includes assistant turn with tool_use + user turn with tool_result.
+    const messages = secondCall.messages as Anthropic.MessageParam[];
+    expect(messages.length).toBeGreaterThanOrEqual(3);
+    const toolResult = (
+      messages.at(-1) as { content: Array<{ type: string; content?: string }> }
+    ).content[0];
+    expect(toolResult.type).toBe("tool_result");
+    expect(toolResult.content).toContain("1590"); // 1800 + 220 - 430
   });
 
   it("throws on empty submission", async () => {

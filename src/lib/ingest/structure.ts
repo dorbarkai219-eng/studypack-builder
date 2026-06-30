@@ -67,6 +67,7 @@ Spec rules you MUST follow (anti-hallucination, spec §3/§7):
 - Every concept, formula AND example carries a "sourceRef" pointing to the source id (e.g. "src1 p. 12") wherever it can be cited. If a claim genuinely has no traceable source in the materials, omit the field — but never invent.
 - Mark high-frequency / heavy exam topics with starLevel 1 or 2.
 - Summaries (confusingPairs, criticalConcepts, traps, typicalValues, checklist) span all blocks; populate from material when possible.
+- For Pillar 4 (handoff §5 #9): every block that has formulas/concepts SHOULD also get a "rubric" (what a full answer must contain + the top trap) and "practiceItems" (exam questions or exercises from the materials, with referenceSolution when one is provided). Practice items must trace to the materials — quote them verbatim or paraphrase faithfully. If no exercises exist for a topic, leave practiceItems empty rather than inventing.
 
 Schema (Zod-checked; missing required fields → REJECTED):
 {
@@ -84,7 +85,21 @@ Schema (Zod-checked; missing required fields → REJECTED):
     "formulas": [{ "latexOrText":"LTR-safe formula string", "intuition":"...", "termKey":[{"symbol":"x","meaning":"..."}], "sourceRef":"src1 p. 11" }],
     "examples": [{ "text":"...", "sourceRef":"src1 p. 12" }],
     "mistakes": ["common error 1", "..."],
-    "tips": ["exam tip 1", "..."]
+    "tips": ["exam tip 1", "..."],
+    "rubric": {
+      "mustContain": ["each item that a full answer must include for this topic", "..."],
+      "topTrap": "the single highest-leverage trap to flag in feedback",
+      "notes": ["optional methodological notes"]
+    },
+    "practiceItems": [
+      {
+        "id": "<blockId>-1",
+        "title": "Exam Q4, 2024 mock exam",
+        "prompt": "full question text...",
+        "referenceSolution": "full reference solution (when one is in the materials)",
+        "sourceRef": "src2 p. 4"
+      }
+    ]
   }],
   "summaries": {
     "confusingPairs": [{ "title":"...", "left":"formula L", "right":"formula R", "whenLeft":"...", "whenRight":"..." }],
@@ -210,7 +225,16 @@ export async function structureCoursePack(
   const model = opts.model ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_MODEL;
 
   const content: Anthropic.ContentBlockParam[] = [];
-  for (const f of files) {
+  files.forEach((f, idx) => {
+    // Cache the large material payload — same bytes will be re-uploaded on
+    // a retry attempt, and prompt caching pays back even within a single
+    // run when the retry feeds the assistant turn back. Mark only the
+    // final file's block so we land at most one cache breakpoint at the
+    // tail of the materials, before the (volatile) instructions.
+    const cache_control =
+      idx === files.length - 1
+        ? ({ type: "ephemeral" } as const)
+        : undefined;
     if (f.type === "pdf") {
       content.push({
         type: "document",
@@ -220,14 +244,16 @@ export async function structureCoursePack(
           data: f.data.toString("base64"),
         },
         title: f.filename,
+        ...(cache_control ? { cache_control } : {}),
       });
     } else {
       content.push({
         type: "text",
         text: `### Source: ${f.filename}\n\n${f.data.toString("utf8")}`,
+        ...(cache_control ? { cache_control } : {}),
       });
     }
-  }
+  });
   content.push({ type: "text", text: userInstructions(meta) });
 
   const tool = buildSubmitTool();
@@ -239,7 +265,10 @@ export async function structureCoursePack(
     const resp = await client.messages.create({
       model,
       max_tokens: opts.maxTokens ?? 16_000,
-      system: SYSTEM_PROMPT,
+      // System prompt is the same across every ingest; cache it (handoff
+      // §"token economics") so a retry / repeat-ingest pays ~0.1x for
+      // the cached system + tool prefix.
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages,
       tools: [tool],
       // Force the tool — eliminates "model emitted prose instead of JSON".

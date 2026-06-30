@@ -22,6 +22,12 @@ export default async function Home() {
           </div>
           <div className="flex items-center gap-2">
             <Link
+              href="/classes"
+              className="rounded-md border border-lines bg-paper px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+            >
+              Classes
+            </Link>
+            <Link
               href="/ingest"
               className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper shadow-sm hover:brightness-95"
             >
