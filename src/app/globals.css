@@ -29,6 +29,25 @@
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
+/* ── Dark mode (system preference only, no manual toggle this round) ──── */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-paper: #0d1117;
+    --color-ink: #e6edf3;
+    --color-muted: #8b949e;
+    --color-lines: #30363d;
+    --color-navy: #7aa2f7;
+    --color-keyidea-bg: #0f1a2e;
+    --color-tip-bg: #0c1f15;
+    --color-mistake-bg: #1f0e0d;
+    --color-example-bg: #1f1709;
+    --color-formula-bg: #0a0f17;
+  }
+  body {
+    background: #010409;
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -37,6 +56,66 @@ body {
   background: #eef1f5;
   color: var(--color-ink);
   font-family: var(--font-heb);
+}
+
+/* ── Global focus + active polish for interactive controls ─────────────── */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+button:not(:disabled):active,
+a[href]:active,
+[role="button"]:active {
+  transform: scale(0.985);
+}
+button,
+a,
+[role="button"] {
+  transition:
+    transform 120ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
+}
+
+/* ── Hero gradient utility ──────────────────────────────────────────────── */
+.hero-band {
+  background:
+    radial-gradient(at 0% 0%, color-mix(in oklab, var(--color-keyidea-bg) 80%, transparent) 0%, transparent 50%),
+    radial-gradient(at 100% 0%, color-mix(in oklab, var(--color-example-bg) 70%, transparent) 0%, transparent 50%),
+    linear-gradient(to bottom right, var(--color-paper), color-mix(in oklab, var(--color-paper) 70%, var(--color-keyidea-bg)));
+}
+
+/* ── Card entrance + hover lift ─────────────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 360ms cubic-bezier(0.2, 0.65, 0.25, 1) both;
+}
+.card-lift {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.25);
 }
 
 /* ── RTL / formula isolation (spec §6 — the #1 bug) ──────────────────────

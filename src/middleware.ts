@@ -28,7 +28,8 @@ const hasClerk =
 // When Clerk keys are absent (dev / preview without auth), middleware is a
 // no-op — clerkMiddleware itself fails to initialize without keys, so the
 // guard must happen before the factory call, not inside its callback.
-const noopMiddleware = (_req: NextRequest) => undefined;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const noopMiddleware = (_req: NextRequest): void => undefined;
 
 export default hasClerk
   ? clerkMiddleware(async (auth, req) => {

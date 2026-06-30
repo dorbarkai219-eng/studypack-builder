@@ -75,7 +75,7 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-none flex-wrap items-center gap-3 border-b border-lines bg-paper px-4 py-2">
+      <div className="sticky top-0 z-10 flex flex-none flex-wrap items-center gap-3 border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur">
         <Link
           href="/"
           className="text-sm text-muted hover:text-ink"

@@ -61,7 +61,7 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
 
   return (
     <main dir={dir} lang={pack.course.language} className="mx-auto max-w-3xl px-6 py-8">
-      <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-lines pb-3">
+      <header className="sticky top-0 z-10 -mx-6 -mt-8 mb-6 flex flex-wrap items-baseline justify-between gap-3 border-b border-lines bg-paper/95 px-6 pb-3 pt-6 backdrop-blur">
         <div>
           <Link href="/" className="text-sm text-muted hover:text-ink">
             {dir === "rtl" ? "←" : "←"} {isHe ? "בית" : "Home"}

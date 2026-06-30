@@ -61,11 +61,21 @@ export function IngestForm() {
     }
   }
 
+  // Map elapsed time to a 0..90% progress bar against a 60s expected upper
+  // bound (we never claim 100% — that lands on success).
+  const progressPct =
+    state.kind === "uploading"
+      ? Math.min(90, Math.round((elapsed / 60) * 90))
+      : state.kind === "ok"
+        ? 100
+        : 0;
+
   return (
     <form
       onSubmit={onSubmit}
-      className="mt-6 grid gap-4 rounded-lg border border-lines bg-paper p-5"
+      className="mt-6 grid gap-5 rounded-xl border border-lines bg-paper p-5 shadow-sm"
     >
+      <SectionHeader index={1} title="Course meta" />
       <Field label="Pack id (slug, used in the URL)">
         <input
           name="id"
@@ -144,6 +154,11 @@ export function IngestForm() {
         </Field>
       </div>
 
+      <SectionHeader
+        index={2}
+        title="Materials"
+        subtitle={`PDF · PPTX · DOCX · text — up to ${MAX_FILES} files, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB total`}
+      />
       <Field
         label={`Upload files (PDF / PPTX / DOCX / .txt — up to ${MAX_FILES} files, ${MAX_BYTES_PER_REQUEST / 1024 / 1024} MB total)`}
       >
@@ -153,7 +168,7 @@ export function IngestForm() {
           name="files"
           multiple
           accept=".pdf,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,.txt,.md"
-          className="text-sm"
+          className="block w-full cursor-pointer rounded-lg border-2 border-dashed border-lines bg-[#f7f9fc] px-3 py-4 text-sm transition-colors hover:border-keyidea hover:bg-keyidea-bg/50"
           onChange={(e) => setSelected(Array.from(e.target.files ?? []))}
         />
         {selected.length > 0 && (
@@ -190,6 +205,31 @@ export function IngestForm() {
         />
       </Field>
 
+      <SectionHeader index={3} title="Submit" />
+      {(state.kind === "uploading" || state.kind === "ok") && (
+        <div className="grid gap-1">
+          <div className="flex items-baseline justify-between text-xs text-muted">
+            <span>
+              {state.kind === "uploading"
+                ? `Claude is structuring your CoursePack… ${elapsed}s`
+                : "Done"}
+            </span>
+            <span className="font-mono">{progressPct}%</span>
+          </div>
+          <div
+            className="h-2 w-full overflow-hidden rounded-full bg-lines/60"
+            role="progressbar"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className="h-full bg-navy transition-[width] duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-3">
         <button
           type="submit"
@@ -201,8 +241,7 @@ export function IngestForm() {
         {state.kind === "uploading" && (
           <span className="text-xs text-muted">
             Claude is reading {selected.length || "your"} source
-            {selected.length === 1 ? "" : "s"} and structuring the CoursePack —
-            can take ~30s on a multi-PDF upload.
+            {selected.length === 1 ? "" : "s"} — usually ~30s.
           </span>
         )}
         {state.kind === "error" && (
@@ -246,5 +285,25 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       </span>
       {children}
     </label>
+  );
+}
+
+function SectionHeader({
+  index,
+  title,
+  subtitle,
+}: {
+  index: number;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 border-b border-lines/60 pb-2">
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-navy text-xs font-bold text-paper">
+        {index}
+      </span>
+      <h3 className="m-0 text-sm font-bold text-ink">{title}</h3>
+      {subtitle && <span className="text-xs text-muted">— {subtitle}</span>}
+    </div>
   );
 }
