@@ -6,7 +6,7 @@
   "regions": ["iad1"],
   "functions": {
     "src/app/api/ingest/route.ts": {
-      "maxDuration": 360
+      "maxDuration": 300
     }
   },
   "env": {

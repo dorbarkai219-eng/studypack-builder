@@ -15,8 +15,8 @@ import { getUserId } from "@/lib/auth/userId";
 
 // Anthropic SDK + filesystem persistence require Node.
 export const runtime = "nodejs";
-// 6-minute timeout — large PDFs + 16k completion can be slow.
-export const maxDuration = 360;
+// 5-minute timeout (Vercel Hobby cap is 300s; raise on Pro if needed).
+export const maxDuration = 300;
 
 const ID_RE = /^[a-z0-9][a-z0-9-]{1,40}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
