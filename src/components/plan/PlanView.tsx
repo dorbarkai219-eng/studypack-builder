@@ -99,6 +99,12 @@ export function PlanView({ pack }: { pack: CoursePack }) {
             {t("cheatSheet")}
           </Link>
           <Link
+            href={`/practice/${pack.course.id}`}
+            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+          >
+            {t("practice")}
+          </Link>
+          <Link
             href={`/verify/${pack.course.id}`}
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
           >

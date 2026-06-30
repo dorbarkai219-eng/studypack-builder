@@ -99,6 +99,12 @@ export default async function Home() {
                     <span className="sm:hidden">Plan</span>
                   </Link>
                   <Link
+                    href={`/practice/${p.course.id}`}
+                    className="rounded-md border border-lines px-3 py-1 text-sm text-ink hover:bg-lines/40"
+                  >
+                    Practice
+                  </Link>
+                  <Link
                     href={`/verify/${p.course.id}`}
                     className="rounded-md border border-lines px-3 py-1 text-sm text-muted hover:bg-lines/40"
                   >

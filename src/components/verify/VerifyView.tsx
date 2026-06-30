@@ -94,6 +94,12 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
           >
             {isHe ? "תכנית" : "Plan"}
           </Link>
+          <Link
+            href={`/practice/${pack.course.id}`}
+            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+          >
+            {isHe ? "תרגול" : "Practice"}
+          </Link>
         </div>
       </header>
 

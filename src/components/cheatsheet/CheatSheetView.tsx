@@ -78,6 +78,13 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
         </Link>
 
         <Link
+          href={`/practice/${course.id}`}
+          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+        >
+          {t("practice")}
+        </Link>
+
+        <Link
           href={`/verify/${course.id}`}
           className="rounded-md border border-lines px-3 py-1.5 text-sm text-muted hover:bg-lines/40"
         >

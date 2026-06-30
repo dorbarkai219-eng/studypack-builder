@@ -201,6 +201,22 @@ export function verifyPack(pack: CoursePack): VerifyReport {
         `Block "${b.title}" has no worked examples (spec §3.3)`,
         where,
       );
+
+    // Pillar 4: rubric + practice items (handoff §4 #4 + §5 #9).
+    if (!b.rubric)
+      add(
+        "warn",
+        "block_no_rubric",
+        `Block "${b.title}" has no rubric — tutor cannot grade submissions for this topic (Pillar 4)`,
+        where,
+      );
+    if (b.practiceItems.length === 0)
+      add(
+        "warn",
+        "block_no_practice",
+        `Block "${b.title}" has no practice items — students have nothing to attempt for this topic (Pillar 4)`,
+        where,
+      );
   });
 
   // ----- Deck coverage -----

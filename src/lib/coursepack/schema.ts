@@ -77,6 +77,40 @@ export const StarLevel = z.union([
 ]);
 export type StarLevel = z.infer<typeof StarLevel>;
 
+/**
+ * Per-block rubric for Pillar 4 (practice + feedback). Drives the AI
+ * tutor: what a full answer must contain, the top trap to avoid, and
+ * the 3-axis scoring spine (approach / execution / interpretation).
+ * Spec §5 #9 + handoff "feedback diagnoses, never just answers".
+ */
+export const RubricSchema = z.object({
+  /** Bullet list of must-have steps/items in a full answer. */
+  mustContain: z.array(z.string()).default([]),
+  /** The single highest-leverage trap to flag. */
+  topTrap: z.string().optional(),
+  /** Optional explanatory hints / methodological notes. */
+  notes: z.array(z.string()).default([]),
+});
+export type Rubric = z.infer<typeof RubricSchema>;
+
+/**
+ * A practice item the student can attempt — usually an exam question
+ * or exercise — with an optional reference solution to grade against
+ * (handoff: deterministic grading > pure LLM judgement).
+ */
+export const PracticeItemSchema = z.object({
+  id: z.string(),
+  /** Display title (e.g. "Question 4, 2024 mock exam"). */
+  title: z.string(),
+  /** Full question text. */
+  prompt: z.string(),
+  /** Optional reference solution / answer key for grading. */
+  referenceSolution: z.string().optional(),
+  /** Provenance — which source/page this came from. */
+  sourceRef: z.string().optional(),
+});
+export type PracticeItem = z.infer<typeof PracticeItemSchema>;
+
 export const BlockSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -93,6 +127,10 @@ export const BlockSchema = z.object({
   examples: z.array(ExampleSchema).default([]),
   mistakes: z.array(z.string()).default([]),
   tips: z.array(z.string()).default([]),
+  /** Pillar 4: rubric the tutor grades a submission against. */
+  rubric: RubricSchema.optional(),
+  /** Pillar 4: exam questions / exercises the student practices for this block. */
+  practiceItems: z.array(PracticeItemSchema).default([]),
 });
 export type Block = z.infer<typeof BlockSchema>;
 
