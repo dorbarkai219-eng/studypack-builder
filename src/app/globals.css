@@ -261,6 +261,35 @@ a,
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.12);
 }
 
+/* ── Cheat-sheet on small screens ────────────────────────────────────────
+   The A4 preview (210mm, up to 3 columns at 8.4px) is unreadable on a phone.
+   Below 640px collapse to a single readable column, drop the fixed mm width,
+   and let wide LTR formulas scroll instead of overflowing the viewport.     */
+@media screen and (max-width: 640px) {
+  .cheatsheet,
+  .cheatsheet.density-1page,
+  .cheatsheet.density-2page,
+  .cheatsheet.density-detailed {
+    column-count: 1 !important;
+    font-size: 13px !important;
+    line-height: 1.5;
+  }
+  .cs-page {
+    width: 100%;
+    min-height: 0;
+    padding: 14px;
+    box-shadow: none;
+  }
+  .cs-box {
+    padding: 12px;
+  }
+  .formula-box,
+  .cs-box .ltr,
+  .cs-box pre {
+    overflow-x: auto;
+  }
+}
+
 /* ── Print fidelity (spec §4.4, §11 #4) ──────────────────────────────────
    Force columns + A4 page so print never collapses to a single column.   */
 @media print {

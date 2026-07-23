@@ -86,8 +86,14 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true, feedback });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Grading failed";
-    const code = /ANTHROPIC_API_KEY/.test(message) ? 503 : 500;
-    return NextResponse.json({ error: message }, { status: code });
+    // Log the real error server-side; return a generic message so internal
+    // detail (paths, model names, SDK internals) never leaks to the client.
+    console.error("[feedback/grade] failed:", err);
+    const raw = err instanceof Error ? err.message : "";
+    const isKeyIssue = /ANTHROPIC_API_KEY/.test(raw);
+    return NextResponse.json(
+      { error: isKeyIssue ? "שירות המשוב אינו מוגדר כרגע" : "מתן המשוב נכשל, נסה שוב" },
+      { status: isKeyIssue ? 503 : 500 },
+    );
   }
 }

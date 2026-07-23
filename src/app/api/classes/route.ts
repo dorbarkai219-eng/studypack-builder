@@ -6,6 +6,7 @@ import {
   listClassesOwnedBy,
   listClassesMemberOf,
   saveClass,
+  getClass,
 } from "@/lib/classes/store";
 import { makeJoinCode } from "@/lib/classes/schema";
 
@@ -51,6 +52,21 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
+  // Guard against class-id hijack / accidental clobber: a POST must not
+  // overwrite an existing class (which would reassign ownerId and wipe
+  // members). Return 409 whether or not the caller owns it.
+  const existing = await getClass(parsed.data.id);
+  if (existing)
+    return NextResponse.json(
+      {
+        error:
+          existing.ownerId === userId
+            ? "כבר קיימת כיתה עם המזהה הזה"
+            : "מזהה הכיתה כבר תפוס — בחר מזהה אחר",
+      },
+      { status: 409 },
+    );
+
   // Only allow publishing packs the caller already has access to (mock
   // packs are public; user-scoped ingested packs would require a more
   // involved check — deferred until that surface exists).
@@ -71,9 +87,7 @@ export async function POST(req: Request) {
     await saveClass(cls);
     return NextResponse.json({ ok: true, class: cls });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "save failed" },
-      { status: 500 },
-    );
+    console.error("[classes/create] save failed:", err);
+    return NextResponse.json({ error: "שמירת הכיתה נכשלה" }, { status: 500 });
   }
 }
