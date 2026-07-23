@@ -10,7 +10,7 @@ export function Skeleton({
   return (
     <div
       aria-hidden
-      className={`animate-pulse rounded-md bg-lines/60 ${className}`}
+      className={`animate-pulse rounded-2xl bg-lines/60 ${className}`}
       {...rest}
     />
   );

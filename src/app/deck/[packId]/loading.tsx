@@ -10,7 +10,7 @@ export default function DeckLoading() {
         <Skeleton className="h-7 w-24" />
       </div>
       <div className="flex flex-1 items-center justify-center p-8">
-        <Skeleton className="aspect-video h-full max-h-[600px] w-full max-w-[1100px] rounded-xl" />
+        <Skeleton className="aspect-video h-full max-h-[600px] w-full max-w-[1100px] rounded-2xl" />
       </div>
       <div className="flex flex-none items-center justify-center gap-6 border-t border-lines bg-paper px-4 py-2">
         <Skeleton className="h-7 w-12" />

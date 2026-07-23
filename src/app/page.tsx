@@ -68,7 +68,7 @@ export default async function Home() {
 
           <div className="ms-auto flex items-center gap-2">
             {focus && (
-              <span className="nb-pill text-xs">
+              <span className="nb-pill hidden text-xs sm:inline-flex">
                 <span aria-hidden>🔥</span>
                 {focusDays} ימים למבחן הקרוב
               </span>

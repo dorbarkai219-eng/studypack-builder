@@ -44,17 +44,15 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
 
         <div className="flex items-center gap-1.5 text-sm">
           <span className="text-muted">{t("density")}:</span>
-          <div className="inline-flex overflow-hidden rounded-lg border-2 border-ink">
+          <div className="inline-flex gap-1.5">
             {densityOptions.map((o) => (
               <button
                 key={o.value}
                 type="button"
                 onClick={() => setDensity(o.value)}
                 aria-pressed={density === o.value}
-                className={`px-2.5 py-1 text-xs font-bold transition-colors ${
-                  density === o.value
-                    ? "bg-navy text-paper"
-                    : "bg-paper text-ink hover:bg-lines/40"
+                className={`nb-btn px-2.5 py-1 text-xs ${
+                  density === o.value ? "nb-btn-primary" : ""
                 }`}
               >
                 {t(o.label)}

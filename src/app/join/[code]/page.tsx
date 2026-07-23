@@ -15,7 +15,7 @@ export default async function JoinByCodePage({
 
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas px-6">
-      <div className="hero-band w-full max-w-md rounded-3xl border border-lines/60 p-6 text-center shadow-sm">
+      <div className="hero-band nb-card w-full max-w-md p-6 text-center">
         <p className="m-0 text-xs font-semibold uppercase tracking-wider text-muted">
           הזמנה לכיתה
         </p>

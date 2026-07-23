@@ -51,9 +51,8 @@ export function PackProgress({ packId, isHe }: { packId: string; isHe: boolean }
     <div className="mt-3 space-y-1.5">
       {plan && (
         <div className="flex items-center gap-2">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-lines">
-            <div
-              className="h-full bg-tip transition-[width]"
+          <div className="nb-progress nb-progress-lime h-2.5 flex-1">
+            <span
               style={{ width: `${pct}%` }}
               role="progressbar"
               aria-valuenow={pct}

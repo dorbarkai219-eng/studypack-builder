@@ -3,14 +3,14 @@ import type { CoursePack } from "@/lib/coursepack/schema";
 import { verifyPack, type Finding, type Severity } from "@/lib/verify/verifyPack";
 
 const SEV_STYLES: Record<Severity, { dot: string; ink: string; bg: string; label: string }> = {
-  error: { dot: "bg-[#c0322b]", ink: "text-[#7a1f1c]", bg: "bg-[#fdecec]", label: "ERROR" },
-  warn: { dot: "bg-[#b45309]", ink: "text-[#7a3a06]", bg: "bg-[#fdf4e3]", label: "WARN" },
-  info: { dot: "bg-[#2563eb]", ink: "text-[#1d4ed8]", bg: "bg-[#eff4ff]", label: "INFO" },
+  error: { dot: "bg-mistake", ink: "text-mistake", bg: "bg-mistake-bg", label: "ERROR" },
+  warn: { dot: "bg-example", ink: "text-example", bg: "bg-example-bg", label: "WARN" },
+  info: { dot: "bg-keyidea", ink: "text-keyidea", bg: "bg-keyidea-bg", label: "INFO" },
 };
 
 function CoverageBar({ label, value }: { label: string; value: number }) {
   const pct = Math.round(value * 100);
-  const color = pct >= 90 ? "#15803d" : pct >= 60 ? "#b45309" : "#c0322b";
+  const color = pct >= 90 ? "var(--color-tip)" : pct >= 60 ? "var(--color-example)" : "var(--color-mistake)";
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between text-xs">
@@ -18,14 +18,14 @@ function CoverageBar({ label, value }: { label: string; value: number }) {
         <span className="font-mono text-muted">{pct}%</span>
       </div>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-lines"
+        className="nb-progress h-3 w-full"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={label}
       >
-        <div className="h-full transition-[width]" style={{ width: `${pct}%`, background: color }} />
+        <span style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>
   );
@@ -34,7 +34,7 @@ function CoverageBar({ label, value }: { label: string; value: number }) {
 function FindingRow({ f }: { f: Finding }) {
   const s = SEV_STYLES[f.severity];
   return (
-    <li className={`flex flex-col gap-1 rounded-md border border-lines ${s.bg} p-3`}>
+    <li className={`nb-card-sm flex flex-col gap-1 ${s.bg} p-3`}>
       <div className="flex items-center gap-2">
         <span className={`inline-block h-2 w-2 rounded-full ${s.dot}`} aria-hidden />
         <span className={`text-[10px] font-bold tracking-wider ${s.ink}`}>{s.label}</span>
@@ -66,7 +66,7 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
           <Link href="/" className="text-sm text-muted hover:text-ink">
             {dir === "rtl" ? "←" : "←"} {isHe ? "בית" : "Home"}
           </Link>
-          <h1 className="m-0 mt-1 text-xl font-bold text-navy">
+          <h1 className="m-0 mt-1 text-xl font-black text-navy">
             {pack.course.title} · {isHe ? "אימות" : "Verify"}
           </h1>
           <p className="m-0 text-sm text-muted">
@@ -78,31 +78,31 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
         <div className="flex gap-2">
           <Link
             href={`/cheatsheet/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {isHe ? "דף נוסחאות" : "Cheat sheet"}
           </Link>
           <Link
             href={`/deck/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {isHe ? "מצגת" : "Deck"}
           </Link>
           <Link
             href={`/plan/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {isHe ? "תכנית" : "Plan"}
           </Link>
           <Link
             href={`/practice/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {isHe ? "תרגול" : "Practice"}
           </Link>
           <Link
             href={`/flashcards/${pack.course.id}`}
-            className="rounded-md border border-tip px-2.5 py-1 text-xs font-medium text-tip hover:bg-tip/5"
+            className="nb-btn px-2.5 py-1 text-xs text-tip"
           >
             {isHe ? "כרטיסיות" : "Flashcards"}
           </Link>
@@ -114,7 +114,7 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
         {(["error", "warn", "info"] as Severity[]).map((sev) => {
           const s = SEV_STYLES[sev];
           return (
-            <div key={sev} className={`rounded-lg border border-lines ${s.bg} p-3`}>
+            <div key={sev} className={`nb-card-sm ${s.bg} p-3`}>
               <div className={`text-[10px] font-bold tracking-wider ${s.ink}`}>{s.label}</div>
               <div className="mt-0.5 text-2xl font-bold text-ink">{report.counts[sev]}</div>
             </div>
@@ -123,7 +123,7 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
       </section>
 
       {/* Coverage */}
-      <section className="mt-5 grid gap-3 rounded-lg border border-lines bg-paper p-4">
+      <section className="nb-card mt-5 grid gap-3 p-4">
         <h2 className="m-0 text-sm font-semibold uppercase tracking-wide text-muted">
           {isHe ? "כיסוי" : "Coverage"}
         </h2>

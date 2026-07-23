@@ -404,7 +404,7 @@ a,
   color: var(--color-lime-ink);
 }
 .nb-pill-blue {
-  background: var(--color-navy);
+  background: #2743e6; /* fixed brand blue — keeps white text legible in dark mode */
   color: #fff;
 }
 
@@ -434,7 +434,7 @@ a,
   box-shadow: 0 0 0 0 var(--color-ink);
 }
 .nb-btn-primary {
-  background: var(--color-navy);
+  background: #2743e6; /* fixed brand blue — keeps white text legible in dark mode */
   color: #fff;
 }
 .nb-btn-lime {

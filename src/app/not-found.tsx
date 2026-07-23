@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="grid min-h-dvh place-items-center bg-canvas px-6">
-      <div className="hero-band w-full max-w-md rounded-3xl border border-lines/60 p-8 text-center shadow-sm">
+      <div className="hero-band nb-card w-full max-w-md p-8 text-center">
         <p className="m-0 font-mono text-6xl font-bold text-navy" dir="ltr">
           404
         </p>
@@ -14,13 +14,13 @@ export default function NotFound() {
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
             href="/"
-            className="rounded-md bg-navy px-4 py-2 text-sm font-semibold text-paper hover:brightness-110"
+            className="nb-btn nb-btn-primary px-4 py-2 text-sm"
           >
             חזרה לבית
           </Link>
           <Link
             href="/ingest"
-            className="rounded-md border border-lines px-4 py-2 text-sm text-ink hover:bg-lines/40"
+            className="nb-btn px-4 py-2 text-sm"
           >
             + העלה חומרי קורס
           </Link>

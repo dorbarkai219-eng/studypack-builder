@@ -86,7 +86,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
             ←
           </Link>
           <div className="me-auto">
-            <h1 className="m-0 text-base font-bold text-navy">
+            <h1 className="m-0 text-base font-black text-navy">
               {pack.course.title} · {t("studyPlan")}
             </h1>
             <p className="m-0 text-xs text-muted">
@@ -95,47 +95,46 @@ export function PlanView({ pack }: { pack: CoursePack }) {
           </div>
           <Link
             href={`/deck/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {t("deck")}
           </Link>
           <Link
             href={`/cheatsheet/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {t("cheatSheet")}
           </Link>
           <Link
             href={`/practice/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs"
           >
             {t("practice")}
           </Link>
           <Link
             href={`/flashcards/${pack.course.id}`}
-            className="rounded-md border border-tip px-2.5 py-1 text-xs font-medium text-tip hover:bg-tip/5"
+            className="nb-btn px-2.5 py-1 text-xs text-tip"
           >
             {t("flashcards")}
           </Link>
           <Link
             href={`/verify/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs text-muted"
           >
             {t("verify")}
           </Link>
           <button
             type="button"
             onClick={reset}
-            className="rounded-md border border-lines px-2.5 py-1 text-xs text-muted hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-xs text-muted"
           >
             {t("reset")}
           </button>
         </div>
         {/* Global progress */}
         <div className="mx-auto mt-2 flex max-w-5xl items-center gap-2">
-          <div className="h-2 flex-1 overflow-hidden rounded-full bg-lines">
-            <div
-              className="h-full bg-tip transition-[width]"
+          <div className="nb-progress nb-progress-lime flex-1">
+            <span
               style={{ width: `${pct}%` }}
               role="progressbar"
               aria-valuenow={pct}
@@ -160,12 +159,10 @@ export function PlanView({ pack }: { pack: CoursePack }) {
           return (
             <section
               key={d.day}
-              className={`rounded-xl border bg-paper p-4 shadow-sm transition-colors ${
-                dayDone ? "border-tip/60" : "border-lines"
-              }`}
+              className={`nb-card p-4 ${dayDone ? "border-tip/60" : ""}`}
             >
               <header className="mb-2 flex flex-wrap items-baseline gap-2 border-b border-lines pb-2">
-                <span className="rounded-md bg-navy px-2 py-0.5 text-sm font-bold text-paper">
+                <span className="nb-pill nb-pill-blue px-2 py-0.5 text-sm">
                   {t("day")} {d.day}
                 </span>
                 {d.star && <span className="text-orange">★</span>}
