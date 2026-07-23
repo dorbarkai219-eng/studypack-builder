@@ -10,15 +10,18 @@ export const runtime = "nodejs";
  */
 export async function GET() {
   const packs = await listPacks();
-  return NextResponse.json({
-    packs: packs.map((p) => ({
-      id: p.course.id,
-      title: p.course.title,
-      subject: p.course.subject,
-      direction: p.course.direction,
-      language: p.course.language,
-      examDate: p.course.examDate,
-      blockCount: p.blocks.length,
-    })),
-  });
+  return NextResponse.json(
+    {
+      packs: packs.map((p) => ({
+        id: p.course.id,
+        title: p.course.title,
+        subject: p.course.subject,
+        direction: p.course.direction,
+        language: p.course.language,
+        examDate: p.course.examDate,
+        blockCount: p.blocks.length,
+      })),
+    },
+    { headers: { "Cache-Control": "private, max-age=30" } },
+  );
 }

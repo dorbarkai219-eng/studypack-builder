@@ -138,42 +138,42 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
       </div>
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-none flex-wrap items-center gap-3 border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur">
+      <div className="sticky top-0 z-10 flex flex-none flex-nowrap items-center gap-3 overflow-x-auto whitespace-nowrap border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur [scrollbar-width:thin]">
         <Link
           href="/"
-          className="text-sm text-muted hover:text-ink"
+          className="shrink-0 text-sm text-muted hover:text-ink"
           aria-label={t("back")}
         >
           ←
         </Link>
-        <h1 className="me-auto text-sm font-black text-navy">{pack.course.title}</h1>
+        <h1 className="me-auto shrink-0 text-sm font-black text-navy">{pack.course.title}</h1>
         <Link
           href={`/cheatsheet/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("cheatSheet")}
         </Link>
         <Link
           href={`/plan/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("plan")}
         </Link>
         <Link
           href={`/practice/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("practice")}
         </Link>
         <Link
           href={`/flashcards/${pack.course.id}`}
-          className="nb-btn nb-btn-lime px-2.5 py-1 text-xs"
+          className="nb-btn nb-btn-lime shrink-0 px-2.5 py-1 text-xs"
         >
           {t("flashcards")}
         </Link>
         <Link
           href={`/verify/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs text-muted"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs text-muted"
         >
           {t("verify")}
         </Link>
@@ -182,7 +182,7 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
           onClick={() => setOverview((o) => !o)}
           aria-pressed={overview}
           title={`${t("overview")} (G)`}
-          className={`px-2.5 py-1 text-xs ${
+          className={`shrink-0 px-2.5 py-1 text-xs ${
             overview
               ? "nb-btn nb-btn-primary"
               : "nb-btn"
@@ -195,21 +195,21 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
           onClick={toggleFullscreen}
           title={`${t("fullscreen")} (F)`}
           aria-label={t("fullscreen")}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           ⛶
         </button>
         <a
           href={`/deck/${pack.course.id}/export`}
           download={`${pack.course.id}-deck.html`}
-          className="nb-btn nb-btn-primary px-2.5 py-1 text-xs"
+          className="nb-btn nb-btn-primary shrink-0 px-2.5 py-1 text-xs"
         >
           {t("downloadHtml")}
         </a>
         <a
           href={`/deck/${pack.course.id}/export-pptx`}
           download={`${pack.course.id}-deck.pptx`}
-          className="nb-btn px-2.5 py-1 text-xs text-navy"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs text-navy"
         >
           {t("downloadPptx")}
         </a>

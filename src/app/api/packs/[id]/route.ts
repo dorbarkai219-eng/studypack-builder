@@ -27,7 +27,9 @@ export async function GET(
     return NextResponse.json({ error: "invalid id" }, { status: 400 });
   const pack = await getStoredPack(auth.userId, id);
   if (!pack) return NextResponse.json({ error: "not found" }, { status: 404 });
-  return NextResponse.json(pack);
+  return NextResponse.json(pack, {
+    headers: { "Cache-Control": "private, max-age=60" },
+  });
 }
 
 export async function DELETE(

@@ -147,11 +147,11 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
       </div>
 
       {/* Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-none flex-wrap items-center gap-3 border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur">
-        <Link href="/" className="text-sm text-muted hover:text-ink" aria-label={t("back")}>
+      <div className="sticky top-0 z-10 flex flex-none flex-nowrap items-center gap-3 overflow-x-auto whitespace-nowrap border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur [scrollbar-width:thin]">
+        <Link href="/" className="shrink-0 text-sm text-muted hover:text-ink" aria-label={t("back")}>
           ←
         </Link>
-        <div className="me-auto">
+        <div className="me-auto shrink-0">
           <h1 className="m-0 text-sm font-black text-navy">
             {pack.course.title} · {t("flashcards")}
           </h1>
@@ -163,19 +163,19 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
         </div>
         <Link
           href={`/deck/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("deck")}
         </Link>
         <Link
           href={`/plan/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("plan")}
         </Link>
         <Link
           href={`/practice/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("practice")}
         </Link>

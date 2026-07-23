@@ -130,7 +130,8 @@ export async function gradeSubmission(
 ): Promise<Feedback> {
   if (!input.submission.trim()) throw new Error("Empty submission");
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  const client = opts.client ?? (apiKey ? new Anthropic({ apiKey }) : null);
+  const client =
+    opts.client ?? (apiKey ? new Anthropic({ apiKey, timeout: 50_000, maxRetries: 0 }) : null);
   if (!client) throw new Error("ANTHROPIC_API_KEY not set (or no client provided)");
   const model = opts.model ?? process.env.ANTHROPIC_MODEL ?? DEFAULT_MODEL;
 

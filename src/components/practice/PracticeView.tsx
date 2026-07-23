@@ -278,7 +278,7 @@ function FeedbackPanel({
       <p className="mt-2 text-sm text-ink">{feedback.summary}</p>
 
       {/* Three-axis scores */}
-      <div className="mt-4 grid grid-cols-3 gap-3">
+      <div className="mt-4 grid min-w-0 grid-cols-3 gap-2 sm:gap-3">
         <ScorePill label={isHe ? "גישה" : "Approach"} score={feedback.scores.approach} />
         <ScorePill label={isHe ? "ביצוע" : "Execution"} score={feedback.scores.execution} />
         <ScorePill
@@ -443,28 +443,28 @@ function ToolbarHeader({ pack }: { pack: CoursePack }) {
             : "Submit a solution and get step-by-step feedback, three-axis scoring, and a confidence read."}
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-nowrap gap-2 overflow-x-auto">
         <Link
           href={`/cheatsheet/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("cheatSheet")}
         </Link>
         <Link
           href={`/deck/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("deck")}
         </Link>
         <Link
           href={`/plan/${pack.course.id}`}
-          className="nb-btn px-2.5 py-1 text-xs"
+          className="nb-btn shrink-0 px-2.5 py-1 text-xs"
         >
           {t("plan")}
         </Link>
         <Link
           href={`/flashcards/${pack.course.id}`}
-          className="nb-btn nb-btn-lime px-2.5 py-1 text-xs"
+          className="nb-btn nb-btn-lime shrink-0 px-2.5 py-1 text-xs"
         >
           {t("flashcards")}
         </Link>

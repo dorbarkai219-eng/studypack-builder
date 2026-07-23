@@ -183,7 +183,7 @@ export default async function Home() {
                         </p>
                       </div>
                       <span
-                        className={`nb-numeral text-6xl ${urgent ? "text-navy" : "text-orange"}`}
+                        className={`nb-numeral text-5xl sm:text-6xl ${urgent ? "text-navy" : "text-orange"}`}
                       >
                         {days}
                       </span>
