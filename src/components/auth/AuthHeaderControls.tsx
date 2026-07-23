@@ -18,13 +18,13 @@ export async function AuthHeaderControls() {
       <div className="flex items-center gap-2">
         <Link
           href="/sign-in"
-          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+          className="nb-btn px-3 py-1.5 text-sm"
         >
           התחברות
         </Link>
         <Link
           href="/sign-up"
-          className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110"
+          className="nb-btn nb-btn-primary px-3 py-1.5 text-sm"
         >
           הרשמה
         </Link>

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StudyPack — ערכת הכנה למבחן מהחומר שלך",
+  title: "סטאדיפאק — ערכת הכנה למבחן מהחומר שלך",
   description:
     "מערכת לבניית ערכות הכנה למבחן מחומרי הקורס שלך — דף נוסחאות, מצגת לימוד, תכנית יומית, ותרגול עם משוב AI. עברית, RTL, וחינם להתחיל.",
 };

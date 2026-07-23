@@ -82,7 +82,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-lines bg-paper/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3">
-          <Link href="/" className="text-sm text-muted hover:text-ink">
+          <Link href="/" className="text-sm text-muted hover:text-ink" aria-label="חזרה">
             ←
           </Link>
           <div className="me-auto">

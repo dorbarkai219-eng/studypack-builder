@@ -100,6 +100,8 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
   // Keyboard: Space/Enter flips; 1-4 grade once the answer is visible.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
       if (!current) return;
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
@@ -202,7 +204,7 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
                       {isHe ? chip.he : chip.en}
                     </span>
                     {current.starLevel > 0 && (
-                      <span className="text-xs text-orange" aria-label="star">
+                      <span className="text-xs text-orange" aria-label={`רמת חשיבות ${current.starLevel} מתוך 2`}>
                         {"★".repeat(current.starLevel)}
                       </span>
                     )}
@@ -263,17 +265,17 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
               }`}
               aria-hidden={!flipped}
             >
-              <RatingButton label={t("again")} kbd="1" cls="nb-btn nb-btn-orange" onClick={() => grade("again")} />
-              <RatingButton label={t("hard")} kbd="2" cls="nb-btn" onClick={() => grade("hard")} />
-              <RatingButton label={t("good")} kbd="3" cls="nb-btn" onClick={() => grade("good")} />
-              <RatingButton label={t("easy")} kbd="4" cls="nb-btn nb-btn-lime" onClick={() => grade("easy")} />
+              <RatingButton label={t("again")} kbd="1" cls="nb-btn nb-btn-orange" onClick={() => grade("again")} disabled={!flipped} />
+              <RatingButton label={t("hard")} kbd="2" cls="nb-btn" onClick={() => grade("hard")} disabled={!flipped} />
+              <RatingButton label={t("good")} kbd="3" cls="nb-btn" onClick={() => grade("good")} disabled={!flipped} />
+              <RatingButton label={t("easy")} kbd="4" cls="nb-btn nb-btn-lime" onClick={() => grade("easy")} disabled={!flipped} />
             </div>
           </>
         ) : (
           /* Session finished / nothing due */
           <div className="animate-fade-in-up nb-card w-full max-w-md p-8 text-center">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-tip-bg text-3xl">
-              {done > 0 ? "🎉" : "✅"}
+              <span aria-hidden>{done > 0 ? "🎉" : "✅"}</span>
             </div>
             <p className="m-0 mt-3 text-lg font-black text-navy">
               {done > 0 ? t("sessionDone") : t("allCaughtUp")}
@@ -310,16 +312,19 @@ function RatingButton({
   kbd,
   cls,
   onClick,
+  disabled,
 }: {
   label: string;
   kbd: string;
   cls: string;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={`flex-1 px-2 py-2.5 text-sm ${cls}`}
     >
       {label}

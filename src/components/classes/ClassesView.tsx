@@ -42,7 +42,7 @@ export function ClassesView() {
     } catch (err) {
       setState({
         kind: "error",
-        message: err instanceof Error ? err.message : "Network error",
+        message: err instanceof Error ? err.message : "שגיאת רשת",
       });
     }
   }
@@ -76,13 +76,13 @@ export function ClassesView() {
       const j = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !j.ok)
         return setCreateState({ kind: "error", message: j.error ?? `HTTP ${r.status}` });
-      setCreateState({ kind: "ok", message: "Class created." });
+      setCreateState({ kind: "ok", message: "הכיתה נוצרה." });
       e.currentTarget.reset();
       await load();
     } catch (err) {
       setCreateState({
         kind: "error",
-        message: err instanceof Error ? err.message : "Network error",
+        message: err instanceof Error ? err.message : "שגיאת רשת",
       });
     }
   }
@@ -104,13 +104,13 @@ export function ClassesView() {
       const j = (await r.json()) as { ok?: boolean; error?: string };
       if (!r.ok || !j.ok)
         return setJoinState({ kind: "error", message: j.error ?? `HTTP ${r.status}` });
-      setJoinState({ kind: "ok", message: "Joined." });
+      setJoinState({ kind: "ok", message: "הצטרפת לכיתה." });
       e.currentTarget.reset();
       await load();
     } catch (err) {
       setJoinState({
         kind: "error",
-        message: err instanceof Error ? err.message : "Network error",
+        message: err instanceof Error ? err.message : "שגיאת רשת",
       });
     }
   }
@@ -150,12 +150,12 @@ export function ClassesView() {
           <button
             type="submit"
             disabled={createState.kind === "pending"}
-            className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
+            className="nb-btn nb-btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
           >
             {createState.kind === "pending" ? "יוצר…" : "צור כיתה"}
           </button>
           {createState.kind === "error" && (
-            <span className="self-center text-sm text-mistake">
+            <span role="alert" className="self-center text-sm text-mistake">
               {createState.message}
             </span>
           )}
@@ -187,12 +187,12 @@ export function ClassesView() {
           <button
             type="submit"
             disabled={joinState.kind === "pending"}
-            className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95 disabled:opacity-50"
+            className="nb-btn nb-btn-orange px-3 py-1.5 text-sm disabled:opacity-50"
           >
             {joinState.kind === "pending" ? "מצטרף…" : "הצטרף"}
           </button>
           {joinState.kind === "error" && (
-            <span className="self-center text-sm text-mistake">{joinState.message}</span>
+            <span role="alert" className="self-center text-sm text-mistake">{joinState.message}</span>
           )}
           {joinState.kind === "ok" && (
             <span className="self-center text-sm text-tip">{joinState.message}</span>

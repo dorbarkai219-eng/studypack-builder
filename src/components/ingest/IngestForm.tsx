@@ -56,7 +56,7 @@ export function IngestForm() {
     } catch (err) {
       setState({
         kind: "error",
-        message: err instanceof Error ? err.message : "Upload failed",
+        message: err instanceof Error ? err.message : "ההעלאה נכשלה",
       });
     }
   }
@@ -172,16 +172,16 @@ export function IngestForm() {
           name="files"
           multiple
           accept=".pdf,application/pdf,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,.txt,.md"
-          className="block w-full cursor-pointer rounded-lg border-2 border-dashed border-lines bg-[#f7f9fc] px-3 py-4 text-sm transition-colors hover:border-keyidea hover:bg-keyidea-bg/50"
+          className="block w-full cursor-pointer rounded-lg border-2 border-dashed border-lines bg-canvas px-3 py-4 text-sm transition-colors hover:border-keyidea hover:bg-keyidea-bg/50"
           onChange={(e) => setSelected(Array.from(e.target.files ?? []))}
         />
         {selected.length > 0 && (
-          <ul className="m-0 mt-2 grid list-none gap-1 rounded-md border border-lines bg-[#f7f9fc] p-2 text-xs">
+          <ul className="m-0 mt-2 grid list-none gap-1 rounded-md border border-lines bg-canvas p-2 text-xs">
             {selected.map((f) => (
               <li
                 key={`${f.name}-${f.size}`}
                 className={`flex items-baseline justify-between gap-2 ${
-                  f.size > MAX_BYTES_PER_FILE ? "text-[#c0322b]" : "text-ink"
+                  f.size > MAX_BYTES_PER_FILE ? "text-mistake" : "text-ink"
                 }`}
               >
                 <span className="font-mono">{f.name}</span>
@@ -192,7 +192,7 @@ export function IngestForm() {
               <span>
                 {selected.length}/{MAX_FILES} קבצים
               </span>
-              <span className={over ? "font-bold text-[#c0322b]" : ""}>
+              <span className={over ? "font-bold text-mistake" : ""}>
                 {fmtBytes(totalBytes)} / {MAX_BYTES_PER_REQUEST / 1024 / 1024} MB
               </span>
             </li>
@@ -215,7 +215,7 @@ export function IngestForm() {
           <div className="flex items-baseline justify-between text-xs text-muted">
             <span>
               {state.kind === "uploading"
-                ? `Claude מארגנת את הCoursePack… ${elapsed}ש׳`
+                ? `Claude מכינה את ערכת הלימוד… ${elapsed}שנ׳`
                 : "סיים"}
             </span>
             <span className="font-mono" dir="ltr">{progressPct}%</span>
@@ -238,9 +238,9 @@ export function IngestForm() {
         <button
           type="submit"
           disabled={state.kind === "uploading" || over}
-          className="rounded-md bg-navy px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-110 disabled:opacity-50"
+          className="nb-btn nb-btn-primary px-3 py-1.5 text-sm disabled:opacity-50"
         >
-          {state.kind === "uploading" ? `מארגן… ${elapsed}ש׳` : "צור ערכה"}
+          {state.kind === "uploading" ? `מכינה… ${elapsed}שנ׳` : "צור ערכה"}
         </button>
         {state.kind === "uploading" && (
           <span className="text-xs text-muted">
@@ -252,10 +252,10 @@ export function IngestForm() {
           </span>
         )}
         {state.kind === "error" && (
-          <span className="text-sm text-[#c0322b]">{state.message}</span>
+          <span role="alert" className="text-sm text-mistake">{state.message}</span>
         )}
         {state.kind === "ok" && (
-          <span className="text-sm text-[#15803d]">
+          <span className="text-sm text-tip">
             נוצרה בהצלחה כ-<code className="font-mono" dir="ltr">{state.id}</code> —{" "}
             <a className="underline" href={`/cheatsheet/${state.id}`}>
               דף נוסחאות
@@ -283,7 +283,7 @@ export function IngestForm() {
           </span>
         )}
         {over && state.kind === "idle" && (
-          <span className="text-xs text-[#c0322b]">
+          <span className="text-xs text-mistake">
             חרגת מהמכסה — הסר קובץ או בחר קטן יותר
           </span>
         )}

@@ -69,7 +69,7 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
     } catch (err) {
       setState({
         kind: "error",
-        message: err instanceof Error ? err.message : "Network error",
+        message: err instanceof Error ? err.message : "שגיאת רשת",
       });
     }
   }
@@ -90,7 +90,7 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
           </p>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted">
             {isHe
-              ? "כדי לאפשר תרגול ומשוב, כל בלוק זקוק ל-rubric ולפחות שאלה אחת ב-practiceItems."
+              ? "כדי לתרגל, כל נושא צריך שאלות תרגול — לקורס הזה עדיין לא הוגדרו."
               : "Each block needs a rubric and ≥1 practiceItems entry to enable tutored feedback."}
           </p>
         </div>
@@ -223,7 +223,7 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
                 </span>
               )}
               {state.kind === "error" && (
-                <span className="text-sm text-mistake">{state.message}</span>
+                <span role="alert" className="text-sm text-mistake">{state.message}</span>
               )}
             </div>
           </article>
@@ -265,7 +265,7 @@ function FeedbackPanel({
   const confidencePct = Math.round(feedback.confidence * 100);
 
   return (
-    <article className="nb-card p-4">
+    <article aria-live="polite" className="nb-card p-4">
       <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-lines pb-2">
         <h2 className="m-0 text-base font-bold text-ink">
           {isHe ? "משוב" : "Feedback"}

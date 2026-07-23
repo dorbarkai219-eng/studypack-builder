@@ -9,7 +9,7 @@
   --color-canvas: #f1eee4; /* warm cream */
   --color-paper: #ffffff;
   --color-ink: #16150f; /* near-black — borders, shadows, body text */
-  --color-muted: #6c6a5d; /* warm gray */
+  --color-muted: #57564a; /* warm gray — darkened for AA contrast on cream */
   --color-lines: #dcd7c8; /* soft warm hairline (incidental borders) */
 
   --color-navy: #2743e6; /* royal blue — headings, primary, big numbers */
@@ -99,7 +99,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--color-orange);
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -414,7 +414,7 @@ a,
 }
 .nb-btn-orange {
   background: var(--color-orange);
-  color: #fff;
+  color: var(--color-lime-ink);
 }
 .nb-btn-ink {
   background: var(--color-ink);

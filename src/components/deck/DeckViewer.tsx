@@ -71,6 +71,8 @@ export function DeckViewer({ pack }: { pack: CoursePack }) {
   // G toggles the overview grid, F fullscreen, Escape closes the grid.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const el = document.activeElement as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
       if (e.key === "Escape") {
         setOverview(false);
         return;

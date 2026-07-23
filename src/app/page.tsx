@@ -170,7 +170,6 @@ export default async function Home() {
                           {p.course.subject}
                         </p>
                       </div>
-                      <span className="nb-pill nb-pill-lime text-[11px]">פעיל</span>
                     </div>
 
                     {/* countdown */}
