@@ -29,10 +29,10 @@ function SlideBody({
   switch (p.kind) {
     case "title":
       return (
-        <div className="flex h-full flex-col items-center justify-center text-center">
-          <h1 className="text-[2.6em] font-extrabold text-navy">{slide.title}</h1>
-          <p className="mt-3 text-[1.2em] text-muted">{p.subject}</p>
-          <p className="mt-6 rounded-full bg-orange/15 px-4 py-1.5 text-[0.9em] font-semibold text-orange">
+        <div className="nb-hero-dark flex h-full flex-col items-center justify-center p-8 text-center">
+          <h1 className="text-[2.6em] font-black">{slide.title}</h1>
+          <p className="mt-3 text-[1.2em] opacity-80">{p.subject}</p>
+          <p className="nb-pill nb-pill-lime mt-6 px-4 py-1.5 text-[0.9em]">
             {t("examIn")} · {p.examDate} · {p.blockCount}{" "}
             {t("criticalConcepts").includes("מושג") ? "נושאים" : "topics"}
           </p>
@@ -47,7 +47,7 @@ function SlideBody({
               <button
                 type="button"
                 onClick={() => onJump?.(e.slideId)}
-                className="flex w-full items-baseline gap-2 rounded-lg border border-lines bg-paper p-3 text-start transition-shadow hover:shadow-md"
+                className="nb-card-sm nb-hover flex w-full items-baseline gap-2 p-3 text-start"
               >
                 <span className="text-[1.1em] font-bold text-muted">{i + 1}.</span>
                 <Stars level={e.starLevel} />
@@ -148,9 +148,9 @@ function SlideBody({
 
     case "closing":
       return (
-        <div className="flex h-full flex-col items-center justify-center text-center">
-          <h1 className="text-[2.4em] font-extrabold text-navy">{slide.title}</h1>
-          <p className="mt-3 text-[1.1em] text-muted">{p.examDate}</p>
+        <div className="nb-hero-dark flex h-full flex-col items-center justify-center p-8 text-center">
+          <h1 className="text-[2.4em] font-black">{slide.title}</h1>
+          <p className="mt-3 text-[1.1em] opacity-80">{p.examDate}</p>
         </div>
       );
   }
@@ -175,7 +175,7 @@ export function Slide({
     <article className="flex h-full flex-col p-[clamp(1rem,3vw,2.5rem)]">
       {!centered && (
         <header className="mb-3 flex-none border-b border-lines pb-2">
-          <h2 className="m-0 flex flex-wrap items-baseline gap-2 text-[1.7em] font-bold text-navy">
+          <h2 className="m-0 flex flex-wrap items-baseline gap-2 text-[1.7em] font-black text-navy">
             <Stars level={slide.starLevel} />
             <span>{slide.title}</span>
             {slide.enTitle && (

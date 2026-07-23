@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-dvh place-items-center bg-[#eef1f5] px-6">
+    <main className="grid min-h-dvh place-items-center bg-canvas px-6">
       <div className="hero-band w-full max-w-md rounded-3xl border border-lines/60 p-8 text-center shadow-sm">
         <p className="m-0 font-mono text-6xl font-bold text-navy" dir="ltr">
           404

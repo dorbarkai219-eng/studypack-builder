@@ -33,7 +33,7 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
       {/* Toolbar — never printed */}
       <div className="no-print sticky top-0 z-10 flex flex-wrap items-center gap-3 border-b border-lines bg-paper/95 px-4 py-2 backdrop-blur">
         <div className="me-auto">
-          <h1 className="m-0 text-base font-bold text-navy">
+          <h1 className="m-0 text-base font-black text-navy">
             {course.title} · {t("cheatSheet")}
           </h1>
           <p className="m-0 text-xs text-muted">
@@ -44,14 +44,14 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
 
         <div className="flex items-center gap-1.5 text-sm">
           <span className="text-muted">{t("density")}:</span>
-          <div className="inline-flex overflow-hidden rounded-md border border-lines">
+          <div className="inline-flex overflow-hidden rounded-lg border-2 border-ink">
             {densityOptions.map((o) => (
               <button
                 key={o.value}
                 type="button"
                 onClick={() => setDensity(o.value)}
                 aria-pressed={density === o.value}
-                className={`px-2.5 py-1 text-xs transition-colors ${
+                className={`px-2.5 py-1 text-xs font-bold transition-colors ${
                   density === o.value
                     ? "bg-navy text-paper"
                     : "bg-paper text-ink hover:bg-lines/40"
@@ -65,28 +65,35 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
 
         <Link
           href={`/deck/${course.id}`}
-          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+          className="nb-btn px-3 py-1.5 text-sm"
         >
           {t("deck")}
         </Link>
 
         <Link
           href={`/plan/${course.id}`}
-          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+          className="nb-btn px-3 py-1.5 text-sm"
         >
           {t("plan")}
         </Link>
 
         <Link
           href={`/practice/${course.id}`}
-          className="rounded-md border border-lines px-3 py-1.5 text-sm text-ink hover:bg-lines/40"
+          className="nb-btn px-3 py-1.5 text-sm"
         >
           {t("practice")}
         </Link>
 
         <Link
+          href={`/flashcards/${course.id}`}
+          className="nb-btn nb-btn-lime px-3 py-1.5 text-sm"
+        >
+          {t("flashcards")}
+        </Link>
+
+        <Link
           href={`/verify/${course.id}`}
-          className="rounded-md border border-lines px-3 py-1.5 text-sm text-muted hover:bg-lines/40"
+          className="nb-btn px-3 py-1.5 text-sm text-muted"
         >
           {t("verify")}
         </Link>
@@ -94,7 +101,7 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
         <button
           type="button"
           onClick={() => window.print()}
-          className="rounded-md bg-orange px-3 py-1.5 text-sm font-semibold text-paper hover:brightness-95"
+          className="nb-btn nb-btn-orange px-3 py-1.5 text-sm"
         >
           {t("printSave")}
         </button>

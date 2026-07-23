@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function DeckLoading() {
   return (
-    <div className="flex h-dvh flex-col bg-[#eef1f5]">
+    <div className="flex h-dvh flex-col bg-canvas">
       <Skeleton className="h-1 w-full rounded-none" />
       <div className="flex flex-none items-center gap-3 border-b border-lines bg-paper px-4 py-2">
         <Skeleton className="h-5 w-44" />

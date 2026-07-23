@@ -37,7 +37,7 @@ export function Callout({
 }) {
   const s = STYLES[kind];
   return (
-    <div className={`my-1 rounded-md border-s-[3px] ${s.box} px-2 py-1`}>
+    <div className={`my-1 rounded-lg border-s-[3px] ${s.box} px-2 py-1`}>
       <span className={`me-1 text-[0.85em] font-bold uppercase tracking-wide ${s.label}`}>
         {label}
       </span>

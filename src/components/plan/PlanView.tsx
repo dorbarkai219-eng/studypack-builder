@@ -52,14 +52,21 @@ export function PlanView({ pack }: { pack: CoursePack }) {
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persist on change (after hydration so we never clobber stored state).
+  // Also write a tiny {done,total} summary the home page reads for the
+  // per-pack progress strip — without having to rebuild the plan there.
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(storageKey(pack.course.id), JSON.stringify(checked));
+      const done = allTaskIds.filter((id) => checked[id]).length;
+      localStorage.setItem(
+        `${storageKey(pack.course.id)}:summary`,
+        JSON.stringify({ done, total: allTaskIds.length }),
+      );
     } catch {
       /* quota / private mode — non-fatal */
     }
-  }, [checked, hydrated, pack.course.id]);
+  }, [checked, hydrated, pack.course.id, allTaskIds]);
 
   const toggle = (id: string) =>
     setChecked((c) => ({ ...c, [id]: !c[id] }));
@@ -71,7 +78,7 @@ export function PlanView({ pack }: { pack: CoursePack }) {
   const reset = () => setChecked({});
 
   return (
-    <div dir={dir} lang={pack.course.language} className="min-h-dvh bg-[#eef1f5]">
+    <div dir={dir} lang={pack.course.language} className="min-h-dvh bg-canvas">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-lines bg-paper/95 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3">
@@ -103,6 +110,12 @@ export function PlanView({ pack }: { pack: CoursePack }) {
             className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
           >
             {t("practice")}
+          </Link>
+          <Link
+            href={`/flashcards/${pack.course.id}`}
+            className="rounded-md border border-tip px-2.5 py-1 text-xs font-medium text-tip hover:bg-tip/5"
+          >
+            {t("flashcards")}
           </Link>
           <Link
             href={`/verify/${pack.course.id}`}

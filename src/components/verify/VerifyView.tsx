@@ -100,6 +100,12 @@ export function VerifyView({ pack }: { pack: CoursePack }) {
           >
             {isHe ? "תרגול" : "Practice"}
           </Link>
+          <Link
+            href={`/flashcards/${pack.course.id}`}
+            className="rounded-md border border-tip px-2.5 py-1 text-xs font-medium text-tip hover:bg-tip/5"
+          >
+            {isHe ? "כרטיסיות" : "Flashcards"}
+          </Link>
         </div>
       </header>
 

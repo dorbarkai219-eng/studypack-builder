@@ -20,13 +20,13 @@ export function ComparisonSection({
         <div key={i} className="mb-1.5 last:mb-0">
           <p className="m-0 text-[0.95em] font-semibold text-ink">{p.title}</p>
           <div className="grid grid-cols-2 gap-1">
-            <div className="rounded border border-lines bg-keyidea-bg/40 p-1">
+            <div className="rounded-lg border border-ink/20 bg-keyidea-bg/40 p-1">
               <Ltr className="block font-mono text-[0.95em]">{p.left}</Ltr>
               <p className="m-0 mt-0.5 text-[0.85em] text-muted">
                 <span className="font-semibold">{t("useLeft")}:</span> {p.whenLeft}
               </p>
             </div>
-            <div className="rounded border border-lines bg-example-bg/40 p-1">
+            <div className="rounded-lg border border-ink/20 bg-example-bg/40 p-1">
               <Ltr className="block font-mono text-[0.95em]">{p.right}</Ltr>
               <p className="m-0 mt-0.5 text-[0.85em] text-muted">
                 <span className="font-semibold">{t("useRight")}:</span> {p.whenRight}

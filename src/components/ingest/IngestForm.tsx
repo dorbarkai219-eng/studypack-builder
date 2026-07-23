@@ -273,6 +273,10 @@ export function IngestForm() {
               תרגול
             </a>{" "}
             ·{" "}
+            <a className="underline" href={`/flashcards/${state.id}`}>
+              כרטיסיות
+            </a>{" "}
+            ·{" "}
             <a className="underline" href={`/verify/${state.id}`}>
               אימות
             </a>

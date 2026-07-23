@@ -46,6 +46,14 @@ export default function RootLayout({
         className={`${heebo.variable} ${geistMono.variable} h-full antialiased`}
       >
         <body className="min-h-full">
+          {/* Apply the saved theme before first paint (no dark-mode flash).
+              Kept inline + tiny; "system" is the absence of the attribute. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                'try{var t=localStorage.getItem("studypack:theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}',
+            }}
+          />
           {/* Keyboard-only skip link — focusable, otherwise sr-only. */}
           <a
             href="#main"

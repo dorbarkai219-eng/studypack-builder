@@ -4,48 +4,82 @@
    Tailwind v4 reads --color-* from @theme and generates text-/bg-/border-
    utilities (e.g. text-ink, bg-paper, border-lines).                       */
 @theme {
+  /* ── Neo-brutalist palette (warm cream · ink black · bold accents) ──────── */
+  /* App canvas behind cards/pages (views + body background). */
+  --color-canvas: #f1eee4; /* warm cream */
   --color-paper: #ffffff;
-  --color-ink: #1f2937; /* slate-800 — softer than near-black */
-  --color-muted: #64748b; /* slate-500 */
-  --color-lines: #e5e7eb; /* lighter borders */
+  --color-ink: #16150f; /* near-black — borders, shadows, body text */
+  --color-muted: #6c6a5d; /* warm gray */
+  --color-lines: #dcd7c8; /* soft warm hairline (incidental borders) */
 
-  --color-navy: #2f4b7c; /* medium navy — less harsh than near-black */
-  --color-orange: #e07a2b; /* emphasis / active */
+  --color-navy: #2743e6; /* royal blue — headings, primary, big numbers */
+  --color-orange: #f0822b; /* emphasis / warm accent */
+  --color-lime: #c2ec3a; /* chartreuse accent — active / success chips */
+  --color-lime-ink: #16150f; /* readable text on lime */
 
   /* callout families */
-  --color-keyidea: #2563eb; /* blue */
-  --color-keyidea-bg: #eff4ff;
-  --color-tip: #15803d; /* green */
-  --color-tip-bg: #ecfaf0;
-  --color-mistake: #c0322b; /* red */
+  --color-keyidea: #2743e6; /* blue */
+  --color-keyidea-bg: #e9edff;
+  --color-tip: #2f8f2f; /* green */
+  --color-tip-bg: #eafaea;
+  --color-mistake: #d63a2f; /* red */
   --color-mistake-bg: #fdecec;
   --color-example: #b45309; /* amber */
   --color-example-bg: #fdf4e3;
 
-  --color-formula-bg: #1f2937; /* match ink — softer slate */
+  --color-formula-bg: #16150f; /* ink — dark formula plates */
   --color-formula-ink: #f8fafc;
 
   --font-heb: var(--font-heb), "Heebo", "Assistant", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
-/* ── Dark mode (system preference only, no manual toggle this round) ──── */
+/* ── Dark mode ───────────────────────────────────────────────────────────
+   Three-way theme: html[data-theme="dark"] forces dark, "light" forces
+   light, and no attribute follows the system preference. The overrides are
+   plain CSS custom properties — Tailwind v4 utilities read var(--color-*),
+   so overriding at :root re-skins every utility. Keep both blocks in sync. */
 @media (prefers-color-scheme: dark) {
-  @theme {
+  :root:not([data-theme="light"]) {
+    --color-canvas: #010409;
     --color-paper: #0d1117;
     --color-ink: #e6edf3;
     --color-muted: #8b949e;
     --color-lines: #30363d;
     --color-navy: #7aa2f7;
+    --color-orange: #f0954a;
+    --color-lime: #c2ec3a;
+    --color-lime-ink: #16150f;
+    --color-keyidea: #6ea8fe;
+    --color-tip: #3fb950;
+    --color-mistake: #f85149;
+    --color-example: #d29922;
     --color-keyidea-bg: #0f1a2e;
     --color-tip-bg: #0c1f15;
     --color-mistake-bg: #1f0e0d;
     --color-example-bg: #1f1709;
     --color-formula-bg: #0a0f17;
   }
-  body {
-    background: #010409;
-  }
+}
+:root[data-theme="dark"] {
+  --color-canvas: #010409;
+  --color-paper: #0d1117;
+  --color-ink: #e6edf3;
+  --color-muted: #8b949e;
+  --color-lines: #30363d;
+  --color-navy: #7aa2f7;
+  --color-orange: #f0954a;
+  --color-lime: #c2ec3a;
+  --color-lime-ink: #16150f;
+  --color-keyidea: #6ea8fe;
+  --color-tip: #3fb950;
+  --color-mistake: #f85149;
+  --color-example: #d29922;
+  --color-keyidea-bg: #0f1a2e;
+  --color-tip-bg: #0c1f15;
+  --color-mistake-bg: #1f0e0d;
+  --color-example-bg: #1f1709;
+  --color-formula-bg: #0a0f17;
 }
 
 html,
@@ -53,7 +87,7 @@ body {
   height: 100%;
 }
 body {
-  background: #f5f7fa; /* slightly lighter, less cool than #eef1f5 */
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-heb);
 }
@@ -133,6 +167,36 @@ a,
   box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.25);
 }
 
+/* ── Flashcard 3D flip ──────────────────────────────────────────────────── */
+.flip-scene {
+  perspective: 1400px;
+}
+.flip-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 420ms cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+.flip-card.flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .flip-card {
+    transition: none;
+  }
+}
+
 /* ── RTL / formula isolation (spec §6 — the #1 bug) ──────────────────────
    Force LTR rendering for Latin/Greek/math even inside an RTL page.
    Applied via the <Ltr> component (a <bdi>).                               */
@@ -204,6 +268,21 @@ a,
     size: A4;
     margin: 6mm;
   }
+  /* Always print light — even when the screen theme is dark. */
+  :root,
+  :root[data-theme="dark"] {
+    --color-canvas: #ffffff;
+    --color-paper: #ffffff;
+    --color-ink: #1f2937;
+    --color-muted: #64748b;
+    --color-lines: #e5e7eb;
+    --color-navy: #2743e6;
+    --color-keyidea-bg: #e9edff;
+    --color-tip-bg: #ecfaf0;
+    --color-mistake-bg: #fdecec;
+    --color-example-bg: #fdf4e3;
+    --color-formula-bg: #1f2937;
+  }
   body {
     background: #fff;
   }
@@ -237,4 +316,157 @@ a,
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Neo-brutalist primitives (spec: chunky ink borders + hard offset shadows,
+   warm cream canvas, bold blue/orange/lime accents). Reusable classes so the
+   whole app shares one look. Offsets point down-start (bottom-right in RTL).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Card: thick ink border, generous radius, hard (blur-free) drop shadow. */
+.nb-card {
+  border: 2px solid var(--color-ink);
+  border-radius: 22px;
+  background: var(--color-paper);
+  box-shadow: 5px 6px 0 0 var(--color-ink);
+}
+.nb-card-sm {
+  border: 2px solid var(--color-ink);
+  border-radius: 16px;
+  background: var(--color-paper);
+  box-shadow: 3px 4px 0 0 var(--color-ink);
+}
+/* Interactive lift — nudges toward the shadow, deepening it. */
+.nb-hover {
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+.nb-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 8px 0 0 var(--color-ink);
+}
+
+/* Dark hero plate ("מה נשאר להיום?"). */
+.nb-hero-dark {
+  background: #17160f;
+  color: #f1eee4;
+  border: 2px solid var(--color-ink);
+  border-radius: 26px;
+  box-shadow: 6px 7px 0 0 var(--color-ink);
+}
+
+/* Pills & tags — outlined, bold, rounded-full. */
+.nb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  background: var(--color-paper);
+  padding: 0.2rem 0.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-ink);
+}
+.nb-pill-lime {
+  background: var(--color-lime);
+  color: var(--color-lime-ink);
+}
+.nb-pill-blue {
+  background: var(--color-navy);
+  color: #fff;
+}
+
+/* Buttons — outlined block with hard shadow that collapses on press. */
+.nb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 2px solid var(--color-ink);
+  border-radius: 13px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: 0.55rem 1rem;
+  font-weight: 800;
+  box-shadow: 3px 4px 0 0 var(--color-ink);
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease,
+    filter 120ms ease;
+}
+.nb-btn:hover {
+  filter: brightness(0.97);
+}
+.nb-btn:not(:disabled):active {
+  transform: translate(3px, 4px);
+  box-shadow: 0 0 0 0 var(--color-ink);
+}
+.nb-btn-primary {
+  background: var(--color-navy);
+  color: #fff;
+}
+.nb-btn-lime {
+  background: var(--color-lime);
+  color: var(--color-lime-ink);
+}
+.nb-btn-orange {
+  background: var(--color-orange);
+  color: #fff;
+}
+.nb-btn-ink {
+  background: var(--color-ink);
+  color: var(--color-canvas);
+}
+
+/* Big countdown numeral. */
+.nb-numeral {
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress bar — outlined track with striped fill. */
+.nb-progress {
+  height: 16px;
+  border: 2px solid var(--color-ink);
+  border-radius: 9999px;
+  background: var(--color-paper);
+  overflow: hidden;
+}
+.nb-progress > span {
+  display: block;
+  height: 100%;
+  background-color: var(--color-navy);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.28) 0,
+    rgba(255, 255, 255, 0.28) 5px,
+    transparent 5px,
+    transparent 11px
+  );
+  transition: width 300ms ease;
+}
+.nb-progress-orange > span {
+  background-color: var(--color-orange);
+}
+.nb-progress-lime > span {
+  background-color: var(--color-lime);
+}
+
+/* Timer chip (mono digits on ink). */
+.nb-timer {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--color-ink);
+  border-radius: 10px;
+  background: var(--color-ink);
+  color: var(--color-lime);
+  padding: 0.15rem 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }

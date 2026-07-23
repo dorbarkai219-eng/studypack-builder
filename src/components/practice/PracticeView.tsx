@@ -108,7 +108,7 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
 
       <div className="mt-5 grid gap-4 md:grid-cols-[260px_1fr]">
         {/* Topic + item picker */}
-        <aside className="rounded-xl border border-lines bg-paper p-3">
+        <aside className="nb-card p-3">
           <h2 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
             {isHe ? "נושאים" : "Topics"}
           </h2>
@@ -118,10 +118,10 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
                 <button
                   type="button"
                   onClick={() => pickBlock(b)}
-                  className={`w-full rounded-md border px-2.5 py-1.5 text-start text-sm transition-colors ${
+                  className={`w-full justify-start px-2.5 py-1.5 text-start text-sm ${
                     activeBlock?.id === b.id
-                      ? "border-navy bg-navy/10 font-semibold text-navy"
-                      : "border-lines bg-paper text-ink hover:bg-lines/40"
+                      ? "nb-btn nb-btn-primary"
+                      : "nb-btn"
                   }`}
                 >
                   {"★".repeat(b.starLevel)} {b.title}
@@ -141,10 +141,10 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
                     <button
                       type="button"
                       onClick={() => pickItem(it)}
-                      className={`w-full rounded-md border px-2.5 py-1.5 text-start text-xs ${
+                      className={`w-full justify-start px-2.5 py-1.5 text-start text-xs ${
                         activeItem?.id === it.id
-                          ? "border-orange bg-orange/10 font-semibold text-orange"
-                          : "border-lines bg-paper text-ink hover:bg-lines/40"
+                          ? "nb-btn nb-btn-orange"
+                          : "nb-btn"
                       }`}
                     >
                       {it.title}
@@ -159,9 +159,9 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
         {/* Practice + submission + feedback */}
         <section className="grid gap-4">
           {activeBlock && activeItem && (
-            <article className="rounded-xl border border-lines bg-paper p-4">
+            <article className="nb-card p-4">
               <header className="mb-3 flex flex-wrap items-baseline gap-2 border-b border-lines pb-2">
-                <span className="rounded-md bg-navy px-2 py-0.5 text-xs font-bold text-paper">
+                <span className="nb-pill nb-pill-blue px-2 py-0.5 text-xs">
                   {activeBlock.title}
                 </span>
                 <span className="text-sm font-semibold text-ink">
@@ -185,7 +185,7 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
             </article>
           )}
 
-          <article className="rounded-xl border border-lines bg-paper p-4">
+          <article className="nb-card p-4">
             <label className="block text-xs font-semibold uppercase tracking-wide text-muted">
               {isHe ? "התשובה שלך" : "Your answer"}
             </label>
@@ -198,14 +198,14 @@ export function PracticeView({ pack }: { pack: CoursePack }) {
                   ? "כתוב את הפתרון שלך כאן. הסבר את גישתך, השתמש בנוסחאות, ופרש את התוצאה."
                   : "Write your solution here — explain your approach, use the formulas, interpret the result."
               }
-              className="mt-2 w-full rounded-md border border-lines bg-paper px-3 py-2 text-sm leading-relaxed text-ink focus:border-keyidea"
+              className="mt-2 w-full rounded-lg border-2 border-ink bg-paper px-3 py-2 text-sm leading-relaxed text-ink focus:border-keyidea"
             />
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={onGrade}
                 disabled={state.kind === "grading" || !submission.trim()}
-                className="rounded-md bg-orange px-4 py-1.5 text-sm font-semibold text-paper hover:brightness-95 disabled:opacity-50"
+                className="nb-btn nb-btn-orange px-4 py-1.5 text-sm disabled:opacity-50"
               >
                 {state.kind === "grading"
                   ? isHe
@@ -265,7 +265,7 @@ function FeedbackPanel({
   const confidencePct = Math.round(feedback.confidence * 100);
 
   return (
-    <article className="rounded-xl border border-lines bg-paper p-4">
+    <article className="nb-card p-4">
       <header className="flex flex-wrap items-baseline justify-between gap-2 border-b border-lines pb-2">
         <h2 className="m-0 text-base font-bold text-ink">
           {isHe ? "משוב" : "Feedback"}
@@ -382,25 +382,25 @@ function FeedbackPanel({
         <div className="mt-4 flex flex-wrap gap-2 border-t border-lines pt-3 text-xs">
           <Link
             href={`/cheatsheet/${pack.course.id}#${activeBlock.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1"
           >
             {t("cheatSheet")}
           </Link>
           <Link
             href={`/deck/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-ink hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1"
           >
             {t("deck")}
           </Link>
           <Link
             href={`/verify/${pack.course.id}`}
-            className="rounded-md border border-lines px-2.5 py-1 text-muted hover:bg-lines/40"
+            className="nb-btn px-2.5 py-1 text-muted"
           >
             {t("verify")}
           </Link>
           <a
             href={`mailto:dorbarkai219@gmail.com?subject=Bad feedback report&body=Pack: ${encodeURIComponent(pack.course.id)}, Block: ${encodeURIComponent(activeBlock.id)}, Confidence: ${confidencePct}%`}
-            className="ms-auto rounded-md border border-lines px-2.5 py-1 text-muted hover:bg-lines/40"
+            className="nb-btn ms-auto px-2.5 py-1 text-muted"
           >
             {isHe ? "דווח על משוב לא נכון" : "Report bad feedback"}
           </a>
@@ -412,10 +412,10 @@ function FeedbackPanel({
 
 function ScorePill({ label, score }: { label: string; score: number }) {
   const color =
-    score >= 7 ? "text-tip border-tip/30 bg-tip-bg" : score >= 4 ? "text-example border-example/30 bg-example-bg" : "text-mistake border-mistake/30 bg-mistake-bg";
+    score >= 7 ? "text-tip bg-tip-bg" : score >= 4 ? "text-example bg-example-bg" : "text-mistake bg-mistake-bg";
   return (
     <div
-      className={`rounded-md border ${color} p-2 text-center`}
+      className={`rounded-xl border-2 border-ink ${color} p-2 text-center`}
       role="img"
       aria-label={`${label}: ${score}/10`}
     >
@@ -434,7 +434,7 @@ function ToolbarHeader({ pack }: { pack: CoursePack }) {
         <Link href="/" className="text-sm text-muted hover:text-ink">
           ← {t("home")}
         </Link>
-        <h1 className="m-0 mt-1 text-xl font-bold text-navy">
+        <h1 className="m-0 mt-1 text-xl font-black text-navy">
           {pack.course.title} · {isHe ? "תרגול" : "Practice"}
         </h1>
         <p className="m-0 text-sm text-muted">
@@ -446,21 +446,27 @@ function ToolbarHeader({ pack }: { pack: CoursePack }) {
       <div className="flex gap-2">
         <Link
           href={`/cheatsheet/${pack.course.id}`}
-          className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+          className="nb-btn px-2.5 py-1 text-xs"
         >
           {t("cheatSheet")}
         </Link>
         <Link
           href={`/deck/${pack.course.id}`}
-          className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+          className="nb-btn px-2.5 py-1 text-xs"
         >
           {t("deck")}
         </Link>
         <Link
           href={`/plan/${pack.course.id}`}
-          className="rounded-md border border-lines px-2.5 py-1 text-xs text-ink hover:bg-lines/40"
+          className="nb-btn px-2.5 py-1 text-xs"
         >
           {t("plan")}
+        </Link>
+        <Link
+          href={`/flashcards/${pack.course.id}`}
+          className="nb-btn nb-btn-lime px-2.5 py-1 text-xs"
+        >
+          {t("flashcards")}
         </Link>
       </div>
     </header>

@@ -45,7 +45,21 @@ export type LabelKey =
   | "subject"
   | "topics"
   | "day"
-  | "materials";
+  | "materials"
+  | "flashcards"
+  | "showAnswer"
+  | "again"
+  | "hard"
+  | "good"
+  | "easy"
+  | "dueCards"
+  | "newCards"
+  | "remaining"
+  | "sessionDone"
+  | "allCaughtUp"
+  | "studyAgain"
+  | "overview"
+  | "fullscreen";
 
 const EN: Record<LabelKey, string> = {
   example: "Example",
@@ -91,6 +105,20 @@ const EN: Record<LabelKey, string> = {
   topics: "topics",
   day: "Day",
   materials: "Materials",
+  flashcards: "Flashcards",
+  showAnswer: "Show answer",
+  again: "Again",
+  hard: "Hard",
+  good: "Good",
+  easy: "Easy",
+  dueCards: "due",
+  newCards: "new",
+  remaining: "left",
+  sessionDone: "Session complete!",
+  allCaughtUp: "All caught up — nothing due right now.",
+  studyAgain: "Study everything again",
+  overview: "Overview",
+  fullscreen: "Fullscreen",
 };
 
 const HE: Record<LabelKey, string> = {
@@ -137,6 +165,20 @@ const HE: Record<LabelKey, string> = {
   topics: "נושאים",
   day: "יום",
   materials: "חומרים",
+  flashcards: "כרטיסיות",
+  showAnswer: "הצג תשובה",
+  again: "שוב",
+  hard: "קשה",
+  good: "טוב",
+  easy: "קל",
+  dueCards: "לחזרה",
+  newCards: "חדשות",
+  remaining: "נותרו",
+  sessionDone: "סיימת את הסשן!",
+  allCaughtUp: "הכול מעודכן — אין כרטיסיות לחזרה כרגע.",
+  studyAgain: "תרגל הכול מחדש",
+  overview: "סקירת שקופיות",
+  fullscreen: "מסך מלא",
 };
 
 const TABLES: Record<string, Record<LabelKey, string>> = { en: EN, he: HE };

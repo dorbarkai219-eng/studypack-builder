@@ -9,7 +9,7 @@ import { TermKeyStrip } from "./TermKeyStrip";
  */
 export function FormulaBox({ formula }: { formula: Formula }) {
   return (
-    <div className="formula-box my-1 overflow-hidden rounded-md border-s-4 border-orange bg-formula-bg">
+    <div className="formula-box my-1 overflow-hidden rounded-lg border-s-4 border-orange bg-formula-bg">
       <div className="px-2 py-1.5">
         <Ltr className="block font-mono text-[1.05em] leading-snug text-formula-ink">
           {formula.latexOrText}
