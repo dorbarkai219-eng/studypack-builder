@@ -2,6 +2,7 @@ import "server-only";
 import type { CoursePack } from "@/lib/coursepack/schema";
 import { hebrewFinancePack } from "@/lib/coursepack/mocks/hebrew-finance";
 import { englishBiologyPack } from "@/lib/coursepack/mocks/english-biology";
+import { businessStrategyPack } from "@/lib/coursepack/mocks/business-strategy";
 import { getStoredPack, loadStoredPacks } from "@/lib/coursepack/store";
 import { getOptionalUserId } from "@/lib/auth/userId";
 
@@ -13,6 +14,7 @@ import { getOptionalUserId } from "@/lib/auth/userId";
 const MOCKS: Record<string, CoursePack> = {
   [hebrewFinancePack.course.id]: hebrewFinancePack,
   [englishBiologyPack.course.id]: englishBiologyPack,
+  [businessStrategyPack.course.id]: businessStrategyPack,
 };
 
 export async function getPack(id: string): Promise<CoursePack | undefined> {
