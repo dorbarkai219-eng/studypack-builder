@@ -183,14 +183,23 @@ const redisStore: PackStore = {
   },
 };
 
-function pickAdapter(): PackStore {
+function storeKind(): "redis" | "memory" | "fs" {
+  // A connected Redis store ALWAYS wins — a stale STUDYPACK_STORE=memory in
+  // the dashboard must never silently disable durable persistence.
+  if (redisEnv()) return "redis";
   const env = process.env.STUDYPACK_STORE?.toLowerCase();
-  if (env === "memory") return memoryStore;
-  if (env === "redis") return redisStore;
-  // Auto-upgrade: prefer Redis whenever its env is present, even without the
-  // explicit flag — connecting the store becomes the only step needed.
-  if (redisEnv()) return redisStore;
-  return fsStore;
+  if (env === "redis") return "redis";
+  if (env === "memory") return "memory";
+  return "fs";
+}
+function pickAdapter(): PackStore {
+  const k = storeKind();
+  return k === "redis" ? redisStore : k === "memory" ? memoryStore : fsStore;
+}
+
+/** Which store adapter is active. Safe to expose — reveals no secrets. */
+export function activeStoreKind(): "redis" | "memory" | "fs" {
+  return storeKind();
 }
 
 const adapter = pickAdapter();
