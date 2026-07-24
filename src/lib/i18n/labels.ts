@@ -64,7 +64,14 @@ export type LabelKey =
   | "allCaughtUp"
   | "studyAgain"
   | "overview"
-  | "fullscreen";
+  | "fullscreen"
+  | "quiz"
+  | "correct"
+  | "incorrect"
+  | "gotIt"
+  | "missedIt"
+  | "score"
+  | "quizDone";
 
 const EN: Record<LabelKey, string> = {
   example: "Example",
@@ -129,6 +136,13 @@ const EN: Record<LabelKey, string> = {
   studyAgain: "Study everything again",
   overview: "Overview",
   fullscreen: "Fullscreen",
+  quiz: "Quiz",
+  correct: "Correct!",
+  incorrect: "Incorrect",
+  gotIt: "Knew it",
+  missedIt: "Missed it",
+  score: "Score",
+  quizDone: "Quiz complete!",
 };
 
 const HE: Record<LabelKey, string> = {
@@ -194,6 +208,13 @@ const HE: Record<LabelKey, string> = {
   studyAgain: "תרגל הכול מחדש",
   overview: "סקירת שקופיות",
   fullscreen: "מסך מלא",
+  quiz: "בוחן",
+  correct: "נכון!",
+  incorrect: "לא נכון",
+  gotIt: "ידעתי",
+  missedIt: "לא ידעתי",
+  score: "ניקוד",
+  quizDone: "סיימת את הבוחן!",
 };
 
 const TABLES: Record<string, Record<LabelKey, string>> = { en: EN, he: HE };

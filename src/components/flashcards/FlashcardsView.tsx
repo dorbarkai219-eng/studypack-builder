@@ -179,6 +179,12 @@ export function FlashcardsView({ pack }: { pack: CoursePack }) {
         >
           {t("practice")}
         </Link>
+        <Link
+          href={`/quiz/${pack.course.id}`}
+          className="nb-btn nb-btn-lime shrink-0 px-2.5 py-1 text-xs"
+        >
+          {t("quiz")}
+        </Link>
       </div>
 
       {/* Stage */}

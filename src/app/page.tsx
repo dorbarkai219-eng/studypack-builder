@@ -209,6 +209,12 @@ export default async function Home() {
                       >
                         ממשיכים ללמוד ←
                       </Link>
+                      <Link
+                        href={`/quiz/${p.course.id}`}
+                        className="nb-btn nb-btn-lime col-span-2 py-2 text-sm"
+                      >
+                        🧠 בוחן אינטראקטיבי
+                      </Link>
                       <Link href={`/cheatsheet/${p.course.id}`} className="nb-btn py-1.5 text-xs">
                         📄 דף נוסחאות
                       </Link>

@@ -160,6 +160,26 @@ export const SummariesSchema = z.object({
 export type Summaries = z.infer<typeof SummariesSchema>;
 
 /**
+ * A self-checkable quiz question (Pillar 4, no-AI path). `choice` questions
+ * (multiple-choice + true/false) grade deterministically against `correct`;
+ * `open` questions reveal the model `answer` for flashcard-style self-rating.
+ */
+export const QuizQuestionSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["choice", "open"]),
+  prompt: z.string(),
+  /** Options for a `choice` question (true/false uses two). */
+  options: z.array(z.string()).default([]),
+  /** Index into `options` of the correct answer (choice only). */
+  correct: z.number().int().nonnegative().optional(),
+  /** Explanation (choice) or the full model answer (open). Always present. */
+  answer: z.string(),
+  /** Optional topic tag for grouping / display. */
+  topic: z.string().optional(),
+});
+export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
+
+/**
  * NOTE: deck STRUCTURE (slide list) and plan STRUCTURE (study days) are
  * NOT persisted on the CoursePack — they are derived fresh on every render
  * via `buildDeck(pack)` and `buildPlan(pack, totalDays)`. Their TypeScript
@@ -173,6 +193,8 @@ export const CoursePackSchema = z.object({
   sources: z.array(SourceSchema).default([]),
   blocks: z.array(BlockSchema).default([]),
   summaries: SummariesSchema,
+  /** Self-checkable quiz (deterministic, no AI). Optional per pack. */
+  quiz: z.array(QuizQuestionSchema).default([]),
 });
 export type CoursePack = z.infer<typeof CoursePackSchema>;
 

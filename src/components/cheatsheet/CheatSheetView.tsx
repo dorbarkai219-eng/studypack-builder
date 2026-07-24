@@ -90,6 +90,13 @@ export function CheatSheetView({ pack }: { pack: CoursePack }) {
         </Link>
 
         <Link
+          href={`/quiz/${course.id}`}
+          className="nb-btn nb-btn-lime px-3 py-1.5 text-sm"
+        >
+          {t("quiz")}
+        </Link>
+
+        <Link
           href={`/verify/${course.id}`}
           className="nb-btn px-3 py-1.5 text-sm text-muted"
         >
