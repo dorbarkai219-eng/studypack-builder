@@ -10,6 +10,6 @@
     }
   },
   "env": {
-    "STUDYPACK_STORE": "memory"
+    "STUDYPACK_STORE": "redis"
   }
 }
