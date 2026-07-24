@@ -6,6 +6,11 @@ export type LabelKey =
   | "example"
   | "mistake"
   | "tip"
+  | "rowConcepts"
+  | "rowFormulas"
+  | "rowExamples"
+  | "rowMistakes"
+  | "rowTips"
   | "keyIdea"
   | "termKey"
   | "comparisons"
@@ -65,6 +70,11 @@ const EN: Record<LabelKey, string> = {
   example: "Example",
   mistake: "Common mistake",
   tip: "Exam tip",
+  rowConcepts: "Concepts",
+  rowFormulas: "Formulas",
+  rowExamples: "Examples",
+  rowMistakes: "Mistakes",
+  rowTips: "Tips",
   keyIdea: "Key idea",
   termKey: "Term key",
   comparisons: "Confusing pairs — side by side",
@@ -81,9 +91,9 @@ const EN: Record<LabelKey, string> = {
   examIn: "Exam in",
   printSave: "Print / Save as PDF",
   density: "Density",
-  d1: "1 page",
-  d2: "2 pages",
-  dDetailed: "Detailed",
+  d1: "Compact",
+  d2: "Normal",
+  dDetailed: "Spacious",
   mappedTo: "→",
   home: "Home",
   deck: "Deck",
@@ -125,6 +135,11 @@ const HE: Record<LabelKey, string> = {
   example: "דוגמה",
   mistake: "טעות נפוצה",
   tip: "טיפ למבחן",
+  rowConcepts: "מושגים",
+  rowFormulas: "נוסחאות",
+  rowExamples: "דוגמאות",
+  rowMistakes: "טעויות",
+  rowTips: "טיפים",
   keyIdea: "רעיון מרכזי",
   termKey: "מקרא סימונים",
   comparisons: "נוסחאות מבלבלות — זו מול זו",
@@ -141,9 +156,9 @@ const HE: Record<LabelKey, string> = {
   examIn: "מבחן בעוד",
   printSave: "הדפס / שמור כ-PDF",
   density: "צפיפות",
-  d1: "עמוד 1",
-  d2: "2 עמודים",
-  dDetailed: "מפורט",
+  d1: "צפוף",
+  d2: "רגיל",
+  dDetailed: "מרווח",
   mappedTo: "→",
   home: "בית",
   deck: "מצגת",

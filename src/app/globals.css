@@ -207,36 +207,29 @@ a,
 }
 
 /* ── Cheat-sheet layout + density (spec §4.4) ────────────────────────────
-   CSS multi-column so columns survive printing. Density presets map to
-   column-count + font scale + spacing. break-inside:avoid keeps boxes whole. */
+   Single-column, top-to-bottom reading order — RTL-safe (no multi-column
+   flow that chops boxes or scrambles order). Density presets scale font +
+   gap only. break-inside:avoid keeps every topic card whole across pages. */
 .cheatsheet {
-  --cs-cols: 2;
-  --cs-font: 10px;
-  --cs-gap: 8px;
+  --cs-cols: 1;
+  --cs-font: 11px;
+  --cs-gap: 10px;
   --cs-pad: 8px;
-  column-count: var(--cs-cols);
-  column-gap: var(--cs-gap);
-  column-fill: balance;
+  column-count: 1;
   font-size: var(--cs-font);
-  line-height: 1.32;
+  line-height: 1.4;
 }
 .cheatsheet.density-1page {
-  --cs-cols: 3;
-  --cs-font: 8.4px;
-  --cs-gap: 6px;
-  --cs-pad: 6px;
+  --cs-font: 9.5px;
+  --cs-gap: 7px;
 }
 .cheatsheet.density-2page {
-  --cs-cols: 2;
-  --cs-font: 10px;
-  --cs-gap: 8px;
-  --cs-pad: 8px;
+  --cs-font: 11px;
+  --cs-gap: 10px;
 }
 .cheatsheet.density-detailed {
-  --cs-cols: 2;
-  --cs-font: 11.5px;
-  --cs-gap: 10px;
-  --cs-pad: 11px;
+  --cs-font: 12.5px;
+  --cs-gap: 13px;
 }
 
 .cs-box {
@@ -248,6 +241,20 @@ a,
   border: 1px solid var(--color-lines);
   border-radius: 6px;
   background: var(--color-paper);
+}
+
+/* Structured "table" topic card (Option ג): a colored header bar + labeled
+   rows. No inner padding so the header spans edge-to-edge; each row pads
+   itself. Stays whole across page breaks. */
+.cs-topic {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: var(--cs-gap);
+  border: 1px solid var(--color-ink);
+  border-radius: 8px;
+  background: var(--color-paper);
+  overflow: hidden;
 }
 
 /* On-screen "paper" preview so what you see ≈ what prints. */
@@ -285,6 +292,7 @@ a,
   }
   .formula-box,
   .cs-box .ltr,
+  .cs-topic .ltr,
   .cs-box pre {
     overflow-x: auto;
   }
