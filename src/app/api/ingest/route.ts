@@ -182,9 +182,18 @@ export async function POST(req: Request) {
     await savePack(userId, pack);
     return NextResponse.json({ ok: true, id: pack.course.id });
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Structuring failed";
-    const code = /ANTHROPIC_API_KEY/.test(message) ? 503 : 500;
-    return NextResponse.json({ error: message }, { status: code });
+    // Log the real error server-side; return a friendly, generic message so
+    // internal detail never leaks and a missing AI key degrades gracefully.
+    console.error("[ingest/structure] failed:", err);
+    const raw = err instanceof Error ? err.message : "";
+    const isKeyIssue = /ANTHROPIC_API_KEY/.test(raw);
+    return NextResponse.json(
+      {
+        error: isKeyIssue
+          ? "פיצ'ר ייבוא החומר אינו זמין כרגע (חסר מפתח AI). אפשר להשתמש בערכות הקיימות."
+          : "עיבוד החומר נכשל, נסה שוב.",
+      },
+      { status: isKeyIssue ? 503 : 500 },
+    );
   }
 }

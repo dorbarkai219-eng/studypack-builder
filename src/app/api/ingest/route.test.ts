@@ -133,7 +133,8 @@ describe("POST /api/ingest", () => {
     const fd = form({ ...VALID, text: "hi" });
     const res = await POST(new Request("http://x/api/ingest", { method: "POST", body: fd }));
     expect(res.status).toBe(503);
-    expect((await res.json()).error).toMatch(/ANTHROPIC_API_KEY/);
+    // Error is sanitized to a friendly Hebrew message (no raw internal detail).
+    expect((await res.json()).error).toMatch(/מפתח AI/);
   });
 
   it("409 when an existing pack with the same id is stored (no overwrite)", async () => {

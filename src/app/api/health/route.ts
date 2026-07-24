@@ -14,6 +14,9 @@ export function GET() {
     ok: true,
     service: "studypack-builder",
     store: activeStoreKind(),
+    // Whether the paid AI features (import + tutor feedback) are configured.
+    // Boolean only — never exposes the key itself.
+    ai: Boolean(process.env.ANTHROPIC_API_KEY),
     timestamp: new Date().toISOString(),
   });
 }
